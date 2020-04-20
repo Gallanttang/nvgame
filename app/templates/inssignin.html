@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Instructor -Admin page - Sign In</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.instructor_id.label }} <br>
+            {{ form.instructor_id }}
+        </p>
+        <p>
+            {{ form.session.label }} <br>
+            {{ form.session() }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

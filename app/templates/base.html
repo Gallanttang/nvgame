@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>OpLog Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="News Vendor, Supply Chain Management,">
+    <meta name="description" content="UBC Sauder Supply Chain Management Online Tutorial Tool">
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+        <div>
+            OpLog: <a href="/signout">Sign out</a> <a href="/history">View History</a>
+        </div>
+    {% endif %}
+
+<hr>
+{% block content %}
+{% endblock %}
+</body>
+</html>

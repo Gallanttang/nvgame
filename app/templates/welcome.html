@@ -1,22 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>
-            OpLog Simulator
-        </title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="keywords" content="News Vendor, Supply Chain Management,">
-        <meta name="description" content="UBC Sauder Supply Chain Management Online Tutorial Tool">
-    </head>
-    <body>
-        <h1> Welcome to the OpLog Simulator!</h1>
-        <br>
-        <p>Sign-up (for first-time user) or Sign-in (to continue previous game): </p>
-        <form action="/signup" method="get">
-            <p><button type="submit" style="width:120px;height:40px;">Sign Up</button></p>
-        </form>
-        <form action="/signin" method="get">
-            <p><button type="submit" style="width:120px;height:40px;">Sign In</button></p>
-        </form>
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> Welcome to the OpLog Simulator!</h1> <br>
+    Sign-up (for first-time user) or Sign-in (to continue previous game): <br>
+    <br>
+    {% if current_user.is_anonymous %}
+        <p>
+            <a href="/signup">Sign Up</a>
+        </p>
+        <p>
+            <a href="/signin">Sign In</a>
+        </p>
+    {% else %}
+        Welcome back {{ current_user.pref_name }}!
+        <p>
+            <a href="/start">Start Game</a>
+        </p>
+    {% endif %}
+{% endblock %}
