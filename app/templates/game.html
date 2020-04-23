@@ -1,0 +1,35 @@
+{% extends base.html %}
+
+{% block content %}
+    <h1> Start of day {{ day_index }}!</h1>
+    <br/>
+    <p>Number of Rounds: {{ current_par.nrounds }}</p>
+    <p>Unit Wholesale Price: ${{ round(float(current_par.wholesale_price),2) }}</p>
+    <p>Unit Retail Price: ${{ round(float(current_par.retail_price),2) }}</p>
+    <p><strong>Demand Pattern:
+        {{ 'FROM '+str(current_par.demand_pattern).split('.')[1].replace('_', ' ')}}
+        {% if current_par.demand_pattern != DistributionType.SAMPLE_POOL %}
+        Distribution
+        {% endif %}
+    </strong></p>
+    {% if current_par.demand_pattern != DistributionType.SAMPLE_POOL %}
+        <p>Historical Demand Samples: {{ current_demand.demand_past }}</p>
+        <p>Demands From Previous Rounds: {{ previous }}</p>
+        <p>Demand Range: {{ demand_range }}</p>
+    {% elif current_par.demand_pattern == DistributionType.NORMAL %}
+        <p>Demand Mean: {{ demand_mean }}</p>
+        <p>Demand Standard Deviation: {{ demand_std_dev }}</p>
+    {% elif %}
+        <p>Demand Peak: {{ demand_peak }}</p>
+    {% endif %}
+
+    <br/>
+    <form action="/run" method="post">
+        <p>Please enter number of inventory ordered for day {day}:
+            <input name="norder" type="number" min="0" step="1" max="10000">
+        </p>
+        <p>
+            <button type="submit" style="width:120px;height:40px;">Confirm Order</button>
+        </p>
+    </form>
+{% endblock %}

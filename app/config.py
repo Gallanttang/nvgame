@@ -4,7 +4,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = 'newsvendor_secret'
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'nvgame.db')
+    FLASK_APP = '../main.py'
+    DATABASE_FILE = 'nvgame.sqlite'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, DATABASE_FILE)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # error notification
@@ -13,11 +15,9 @@ class Config:
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    # change at any time
-    ADMINS = ['themaildumpster0@gmail.com']
 
 
 class DevConfig(Config):
-    DEBUG = True
+    FLASK_DEBUG = True
     TESTING = True
     DATABASE_URI = os.environ.get('DEV_DATABASE_URI')

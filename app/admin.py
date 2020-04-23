@@ -10,17 +10,17 @@ import os
 # Initialize Admin Page
 admin = Admin(app, name='Instructor Page')
 # List of allowable users on admin page
-adminIDs = [10000001100, 10000002200, 10000003300]
+adminIDs = ['10000000000', '10000001100', '10000002200', '10000003300']
 
 
 class MemoView(BaseView):
     @expose('/')
     def index(self):
-        return self.render('admin/memo.html')
+        return self.render('templates/memo.html')
 
     def is_accessible(self):
         try:
-            return current_user.student_number in adminIDs
+            return current_user.id in adminIDs
         except:
             return False
 
@@ -35,7 +35,7 @@ class ParameterView(ModelView):
 
     def is_accessible(self):
         try:
-            return current_user.student_number in adminIDs
+            return current_user.id in adminIDs
         except:
             return False
 
@@ -46,7 +46,7 @@ admin.add_view(ParameterView(models.Parameter, db.session))
 class MyFileAdmin(FileAdmin):
     def is_accessible(self):
         try:
-            return current_user.student_number in adminIDs
+            return current_user.id in adminIDs
         except:
             return False
 
@@ -61,7 +61,7 @@ class DemandView(ModelView):
 
     def is_accessible(self):
         try:
-            return current_user.student_number in adminIDs
+            return current_user.id in adminIDs
         except:
             return False
 
@@ -87,7 +87,7 @@ admin.add_view(PaceView(models.Pace, db.session))
 class UserView(ModelView):
     column_display_pk = True
     column_hide_backrefs = False
-    column_filters = ['id', 'student_number', 'session_code']
+    column_filters = ['student_number', 'session_code', 'pref_name']
 
     def is_accessible(self):
         try:
@@ -96,7 +96,7 @@ class UserView(ModelView):
             return False
 
 
-admin.add_view(UserView(models.User, db.session))
+admin.add_view(UserView(models.Users, db.session))
 
 
 class GameView(ModelView):

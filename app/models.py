@@ -6,32 +6,33 @@ import numpy as np
 import enum
 
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.String(), primary_key=True)
+class Users(UserMixin, db.Model):
+    __tablename__ = 'Users'
+    id = db.Column(db.String, primary_key=True)
     student_number = db.Column(db.Integer, nullable=False)
     session_code = db.Column(db.String(), nullable=False)
     pref_name = db.Column(db.String(), nullable=False)
 
     __table_args__ = (
-        db.CheckConstraint('10000000 <= self.student_number'),
-        db.CheckConstraint('self.student_number < 100000000'),
+        db.CheckConstraint('10000000 <= student_number'),
+        db.CheckConstraint('student_number < 100000000'),
     )
 
     def __repr__(self):
-        return '<Student {}>'.format(self.id)
+        return '<User {}>'.format(self.id)
 
 
 @loginManager.user_loader
-def load_user(student_number):
-    return User.query.get(int(student_number))
+def load_user(user_id):
+    return Users.query.get(user_id)
 
 
 # enum class for distribution type
 class DistributionType(enum.Enum):
     SAMPLE_POOL = 'Sample Pool'
     NORMAL = 'Normal Distribution'
-    TRIANGULAR = 'Triangular Distibution'
-    UNIFORM = 'Uniform Distibution'
+    TRIANGULAR = 'Triangular Distribution'
+    UNIFORM = 'Uniform Distribution'
 
 
 # default function for scode in Demand model
@@ -151,7 +152,7 @@ def default_session_size():
     try:
         recent_added_par_pace = Parameter.query.all()[-1]
         assert Demand.query.filter_by(scode=recent_added_par_pace.scode).all()
-        recent_added_user_count_pace = len(User.query.filter_by(scode=recent_added_par_pace.scode).all())
+        recent_added_user_count_pace = len(Users.query.filter_by(scode=recent_added_par_pace.scode).all())
     except:
         return 'Complete Parameter or Demand table first!'
     if recent_added_par_pace.consistent_pace:
@@ -165,7 +166,7 @@ def default_session_id_collection():
     try:
         recent_added_par_pace = Parameter.query.all()[-1]
         assert Demand.query.filter_by(scode=recent_added_par_pace.scode).all()
-        recent_added_user_collection_pace = [x[0] for x in User.query.with_entities(User.id).filter_by(
+        recent_added_user_collection_pace = [x[0] for x in Users.query.with_entities(Users.id).filter_by(
             scode=recent_added_par_pace.scode).all()]
     except:
         return 'Complete Parameter or Demand table first!'
@@ -177,6 +178,7 @@ def default_session_id_collection():
 
 # model 2: parameter - game setup
 class Parameter(db.Model):
+    __tablename__ = 'Parameter'
     par_id = db.Column(db.Integer, primary_key=True)
     scode = db.Column(db.String(10), nullable=False, unique=True)
     consistent_pace = db.Column(db.Boolean, nullable=False, default=False)
@@ -207,6 +209,7 @@ class Parameter(db.Model):
 
 # model 3 demand - generated demand amount for each round
 class Demand(db.Model):
+    __tablename__ = 'Demand'
     demand_id = db.Column(db.Integer, primary_key=True)
     scode = db.Column(db.String(10), nullable=False, default=default_scode, unique=True)
     demand_past = db.Column(db.String(300), nullable=False, default=default_demand_past)
@@ -215,6 +218,7 @@ class Demand(db.Model):
 
 # model 4 game - game record
 class Game(db.Model):
+    __tablename__ = 'Game'
     record_id = db.Column(db.Integer, primary_key=True)
     scode = db.Column(db.String(10), nullable=False)
     id = db.Column(db.Integer, nullable=False)
@@ -234,6 +238,7 @@ class Game(db.Model):
 
 # model 5 pace - record information for consistent pace game sessions
 class Pace(db.Model):
+    __tablename__ = 'Pace'
     demand_id = db.Column(db.Integer, primary_key=True)
     scode = db.Column(db.String(10), nullable=False, default=default_pace_scode, unique=True)
     session_size = db.Column(db.Integer, nullable=False, default=default_session_size)

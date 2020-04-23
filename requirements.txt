@@ -20,3 +20,5 @@ scipy==1.4.1
 WTForms~=2.2.1
 config==0.5.0.post0
 
+
+alembic~=1.4.2

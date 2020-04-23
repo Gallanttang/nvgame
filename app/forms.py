@@ -17,7 +17,7 @@ class SignUpForm(FlaskForm):
                                   validators=[validators.DataRequired(),
                                               validators.number_range(10000000, 99999999)])
     name = StringField('Preferred name', validators=[validators.DataRequired()])
-    session = PasswordField('Session Code', validators=[validators.DataRequired()])
+    session = StringField('Session Code', validators=[validators.DataRequired()])
     submit = SubmitField('Sign In')
 
     def validate_username(self, student_number, session):
@@ -30,7 +30,8 @@ class SignUpForm(FlaskForm):
             hashed = int(str(student_number) + '3' + temp_session_code[1])
         else:
             raise Exception('Invalid session code')
-        user = models.User.query.filter_by(id=hashed).first()
+        user = models.Users.query.filter_by(id=hashed).first()
+        print(user)
         if user is None:
             return True
         return False
