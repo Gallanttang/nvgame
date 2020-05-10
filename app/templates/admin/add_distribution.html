@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="News Vendor, Supply Chain Management,">
+    <meta name="description" content="UBC Sauder Supply Chain Management Online Tutorial Tool">
+    <title>Admin Page</title>
+    <script type="text/javascript">
+        function addFields() {
+            let treatment = document.getElementById('treatment').value;
+            // Number of inputs to create
+            let number = 1;
+            if (treatment > 2){
+                // Number of inputs to create
+                let number = document.getElementById("rounds").value;
+            }
+            // Container <div> where dynamic content will be placed
+            let container = document.getElementById("container");
+            // Clear previous contents of the container
+            while (container.hasChildNodes()) {
+                container.removeChild(container.lastChild);
+            }
+            for (let i = 0; i < number; i++) {
+                // Append a node with a random text
+                container.appendChild(document.createTextNode("distributions[]"));
+                // Create an <input> element, set its type and name attributes
+                let input = document.createElement("input");
+                input.type = "text";
+                input.name = "distributions[]";
+                input.required = true;
+                container.appendChild(input);
+                let
+                // Append a line break
+                container.appendChild(document.createElement("br"));
+            }
+        }
+    </script>
+</head>
+<body>
+{% if current_user.is_authenticated %}
+    <div>
+        Admin: <a href="{{ url_for('logout') }}">Logout</a> <a href="{{ url_for('admin_home') }}">Admin Homepage</a>
+    </div>
+    <br>
+    Hello {{ current_user.name }}!
+    <br>
+{% endif %}
+<hr>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class=flashes>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+<h1>What kind of distribution would you like to create?</h1>
+<br>
+<h2>Here are a list of treatment groups to choose from</h2>
+<table style="width: 100%">
+    <tr>
+        <th>Group</th>
+        <th>Same distribution for each round</th>
+        <th>Display profit</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Yes</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Yes</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>No</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>No</td>
+        <td>No</td>
+    </tr>
+</table>
+<form method="post">
+    <label for="treatment">What type of treatment group is this template for?</label>
+    <select id="treatment" name="treatment" required>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+    <input type="number" name="wholesale_price" id="wholesale_price" step="0.01" required>
+    <input type="number" name="retail_price" id="retail_price" step="0.01" required>
+    <label for="rounds">How many rounds do you want for the game?</label>
+    <input type="number" step="1" name="rounds" id="rounds" required>
+    <input type="button" id="gen_rounds"
+           value="Click after selecting the number of rounds"
+           onclick="addFields()">
+    <div id="container"/>
+    <label for="name">What will you name this template?</label>
+    <input type="text" name="name" id="name" required>
+    <input type="submit" value="Create distribution">
+</form>
+</body>
+</html>

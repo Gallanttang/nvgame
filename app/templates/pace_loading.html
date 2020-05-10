@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if condition %}
+        <br/>
+        <h4>
+            Reminder 1: please DO NOT use tab BACKWARDS button in your browser to go back to previous tabs or
+            REFRESH/CLOSE tabs during game session
+        </h4>
+        <h4>
+            Reminder 2: you will be automatically redirected to next page in 1 minute - redirect now by click the button
+            below
+        </h4>
+        <form id="startform" name="startform" action="/pacerun" method="get">
+        <p>
+            <button type="submit" style="width:120px;height:40px;">Start Game</button>
+        </p>
+        <form/>
+        <script type="text/javascript">
+            window.onload = function () {
+                window.setTimeout('document.startform.submit()', 60000);
+            };
+        </script>
+    {% else %}
+        Instructor has already opened the current game session!
+        Please wait for the next session or inform instructor for assist...
+    {% endif %}
+{% endblock %}

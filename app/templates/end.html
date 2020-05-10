@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1> Well done, {{ current_user.pref_name }}! Thanks for playing!</h1>
+    <br>
+    <form action="/stats" method="get">
+    <p>
+        <button type="submit" style="width:120px;height:40px;">Back to Stats</button>
+    </p>
+    <form/>
+{% endblock %}

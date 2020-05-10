@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <br>
+
+    {% if condition %}
+        Waiting for others to confirm their orders...
+    {% else %}
+        All orders are confirmed!
+        <br>
+        <h4>Reminder: you will be automatically redirected to next page in 5 seconds - redirect now by click the button
+            below</h4>
+        <form id="waitendform" name="waitendform" action="/pacestats" method="get">
+        <p>
+            <button type="submit" style="width:120px;height:40px;">Show Results</button>
+        </p>
+        <form/>
+        <script type="text/javascript">
+            {
+                window.onload = function () {
+                    window.setTimeout('document.waitendform.submit()', 5000)
+                }
+            }
+        </script>
+    {% endif %}
+
+{% endblock %}

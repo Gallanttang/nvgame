@@ -1,7 +1,6 @@
-{% extends base.html %}
-
+{% extends 'base.html' %}
 {% block content %}
-    <h1> Start of day {% if game_mode == 1 or game_mode == 2 %}
+        <h1> Start of day {% if game_mode == 1 or game_mode == 2 %}
             {{ form.day_index }}!
         {% endif %}</h1>
     <br/>
@@ -24,8 +23,9 @@
     {% elif current_par.demand_pattern == DistributionType.TRIANGULAR %}
         <p>Demand Peak: {{ demand_peak }}</p>
     {% endif %}
-    <br>
-    <form action="" method="post">
+
+    <br/>
+    <form action="" id="orderform" name="orderform" method="post">
         {{ form.hidden_tag() }}
         <p>
             {{ form.input.label }} <br>
@@ -35,5 +35,13 @@
             {{ form.submit() }}
         </p>
     </form>
+    <h4>
+        Reminder: default order amount (0) will be automatically submitted
+        if you don't update and confirm your order in 2 minutes
+    </h4>
+    <script type="text/javascript">
+        {
+            window.onload=function(){window.setTimeout('document.orderform.submit()', 120000)}
+        }
+    </script>
 {% endblock %}
-

@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <h1>Here the a list of active sessions</h1>
+    <br>
+    {{ table.__html__() }}
+    <br>
+    <form method="post">
+        <label for="choice">Which template would you like to delete?</label>
+        <select id="choice" required>
+            {% for choice in choices %}
+                <option value="{{ choice }}">{{ choice }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="End this session!">
+    </form>
+{% endblock %}

@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField
-from app import models
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField, BooleanField, FloatField
 import wtforms.validators as validators
 
 
@@ -20,29 +19,20 @@ class SignUpForm(FlaskForm):
     session = StringField('Session Code', validators=[validators.DataRequired()])
     submit = SubmitField('Sign In')
 
-    def validate_username(self, student_number, session):
-        temp_session_code = session.split('_')
-        if temp_session_code[0] == 'harishk':
-            hashed = int(str(student_number) + '1' + temp_session_code[1])
-        elif temp_session_code[0] == 'timh':
-            hashed = int(str(student_number) + '2' + temp_session_code[1])
-        elif temp_session_code[0] == 'jakez':
-            hashed = int(str(student_number) + '3' + temp_session_code[1])
-        else:
-            raise Exception('Invalid session code')
-        user = models.Users.query.filter_by(id=hashed).first()
-        print(user)
-        if user is None:
-            return True
-        return False
 
-
-class InsSignInForm(FlaskForm):
-    instructor_id = IntegerField('Instructor ID', validators=[validators.DataRequired()])
-    session = StringField('Session Code', validators=[validators.DataRequired()])
+class AdminSignInForm(FlaskForm):
+    id = StringField('Admin ID', validators=[validators.DataRequired()])
+    password = PasswordField('Password', validators=[validators.DataRequired()])
     submit = SubmitField('Sign In')
 
 
+class AddAdmin(FlaskForm):
+    username = StringField('New Username', validators=[validators.DataRequired()])
+    password = StringField('New Password', validators=[validators.DataRequired()])
+    name = StringField('Name of Admin', validators=[validators.DataRequired()])
+    submit = SubmitField('Create Admin')
+
+
 class InputForm(FlaskForm):
-    input = IntegerField('Input', validators=[validators.DataRequired()])
-    submit = SubmitField('Enter Value')
+    input = IntegerField('How many orders?', validators=[validators.DataRequired()])
+    submit = SubmitField('Send Order!')

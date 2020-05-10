@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>OpLog Simulator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="keywords" content="News Vendor, Supply Chain Management,">
     <meta name="description" content="UBC Sauder Supply Chain Management Online Tutorial Tool">
+    <title>Admin Page</title>
+
 </head>
 <body>
 {% if current_user.is_authenticated %}
     <div>
-        OpLog: <a href="{{ url_for('logout') }}">Sign out</a> <a href="/history">View History</a>
+        Admin: <a href="{{ url_for('logout') }}">Logout</a> <a href="{{ url_for('admin_home')}}">Admin Homepage</a>
     </div>
+    <br>
+    Hello {{ current_user.name }}!
+    <br>
 {% endif %}
-
 <hr>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -24,7 +27,6 @@
         </ul>
     {% endif %}
 {% endwith %}
-<br>
 {% block content %}
 {% endblock %}
 </body>

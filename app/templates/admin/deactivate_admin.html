@@ -1,0 +1,14 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <h1>Which user would you like to deactivate?</h1>
+    <br>
+    <form action="" method="post">
+        <label for="choice">Choose from this menu:</label>
+        <select id="choice" required>
+            {% for i in range(0, length) %}
+                <option value="{{ choices[i] }}">{{ choices[i] }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Deactivate">
+    </form>
+{% endblock %}

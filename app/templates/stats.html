@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1> Accumulated Game Stats at The End of Day {{ day_index }} </h1>
+    <br>
+    {{ html }}
+    <br>
+    {{ plot }}
+    <br>
+    {% if day_index == current_par.nrounds %}
+        <form action="/end" method="get">s
+            <p>
+                <button type="submit" style="width:120px;height:40px;">End of Game</button>
+            </p>
+        </form>
+    {% else %}
+        <form action="/run" method="get">
+            <p>
+                <button type="submit" style="width:120px;height:40px;">Go to Day {{ day_index + 1 }}</button>
+            </p>
+        </form>
+    {% endif %}
+{% endblock %}

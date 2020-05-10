@@ -1,22 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Sign Up!</h1>
-    <form action="" method="post"=e>
+    <h1>Login!</h1>
+    <br>
+    <form action="" method="post">
         <label for="uid">Student Number</label> <br>
         <input type="number" id="uid" name="uid" step="1"
                min="10000000"
                max="99999999"
                required> <br>
-        <label for="name">Name</label> <br>
-        <input type="text" id="name" name="name" required> <br>
         <label for="session_code">Session Code</label> <br>
-        <select id="session_code" required>
+        <select id="session_code">
             {% for i in range(0, length) %}
                 <option value="{{ options[i] }}">{{ options[i] }}</option>
             {% endfor %}
         </select>
         <br>
-        <input type="submit" value="Sign up!">
+        <input type="submit" value="Login!">
     </form>
 {% endblock %}

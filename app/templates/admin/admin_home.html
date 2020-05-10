@@ -1,0 +1,20 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+
+    What would you like to do today?
+    <br>
+    <a class="button" href="{{ url_for('add_admin') }}">Add a new admin user</a>
+    <br>
+    <a class="button" href="{{ url_for('deactivate_admin') }}">Deactivate an admin user</a>
+    <br>
+    <a class="button" href="{{ url_for('reactivate_admin') }}">Reactivate an admin user</a>
+    <br>
+    <a class="button" href="{{ url_for('add_session') }}">Start a new session</a>
+    <br>
+    <a class="button" href="{{ url_for('stop_session') }}">Stop an ongoing session</a>
+    <br>
+    <a class="button" href="{{ url_for('add_detail') }}">Add a new game template</a>
+    <br>
+    <a class="button" href="{{ url_for('remove_detail') }}">Remove an existing game template</a>
+{% endblock %}

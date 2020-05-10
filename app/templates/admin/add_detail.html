@@ -1,0 +1,20 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <h1>What kind of template would you like to add?</h1>
+    <br>
+    <form action="post">
+        <label for="is_pace">I want a paced game</label>
+        <input type="checkbox" name="is_pace" id="is_pace">
+        <br>
+        <select id="distribution_file" required>
+            {% for distribution in distributions %}
+                <option value="{{ distribution }}">{{ distribution }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="description"> Please describe this template</label>
+        <input type="text" id="description" name="description" required>
+        <br>
+        <input type="submit" value="Create template">
+    </form>
+{% endblock %}

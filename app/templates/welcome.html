@@ -1,20 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1> Welcome to the OpLog Simulator!</h1> <br>
-    Sign-up (for first-time user) or Sign-in (to continue previous game): <br>
+    <h1> Welcome to the OpLog Simulator!</h1>
     <br>
-    {% if current_user.is_anonymous %}
+    {% if qualified %}
+        Sign-up (for first-time user in a new session) or Sign-in to a current session: <br>
         <p>
-            <a href="/signup">Sign Up</a>
-        </p>
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+        </p> <br>
         <p>
-            <a href="/signin">Sign In</a>
-        </p>
+            <a href=" {{ url_for('login') }}">Log In</a>
+        </p> <br>
     {% else %}
-        Welcome back {{ current_user.pref_name }}!
-        <p>
-            <a href="/start">Start Game</a>
-        </p>
+        <h2>
+            No sessions are active at the moment. <br>
+            Please wait for further instruction!
+        </h2>
+        <br>
     {% endif %}
+    <p>
+        For admins, please
+        <a href=" {{ url_for('admin_login') }}">login here</a>
+    </p>
 {% endblock %}

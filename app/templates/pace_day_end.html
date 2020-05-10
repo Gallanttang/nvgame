@@ -1,0 +1,37 @@
+{% extends 'roundend.html' %}
+{% block content %}
+    <h1>
+        End of day
+        {% if game_mode == 1 or game_mode == 2 %}
+            {{ form.day_index }}
+        {% endif %}
+    </h1>
+    <br/>
+    <p>Inventory on hands today: {{ ordered }}</p>
+    <p><strong>Demands today ends up to be: {{ actual_demand }}</strong></p>
+    <p>Number of units sold today: {{ sold }}</p>
+    <p>Lost sales in units today: {{ opp_cost }}</p>
+    <p>Revenue today: ${{ revenue }}</p>
+    <p>Cost today: ${{ cost }}</p>
+    {% if game_mode == 1 or game_mode == 3 %}
+        <p>Profit Calculation: ${{ current_par.retail_price }} * Min(Quantity, Customer Demand)
+            - ${{ current_par.wholesale_price }} * (Quantity)</p>
+        <p>Profit today: ${{ profit }}</p>
+        <p>Total profit: ${{ tot_profit }}</p>
+    {% endif %}
+    <br>
+    <h4>Reminder: you will be automatically redirected to next page in 1 minute
+        - redirect now by click the button below</h4>
+    <form id="daycontinueform" name="daycontinueform" action="/pacewaiting" method="get">
+        <p>
+            <button type="submit" style="width:120px;height:40px;">Continue</button>
+        </p>
+    </form>
+    <script type="text/javascript">
+        {
+            window.onload = function () {
+                window.setTimeout('document.daycontinueform.submit()', 60000)
+            }
+        }
+    </script>
+{% endblock %}
