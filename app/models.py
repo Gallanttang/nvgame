@@ -7,8 +7,7 @@ from flask_login import UserMixin
 # pre-set game modes for a game
 class Details(db.Model):
     __tablename__ = 'Details'
-    id = db.Column(db.Integer, primary_key=True)
-    is_pace = db.Column(db.Boolean, nullable=False)
+    id = db.Column(db.String(20), primary_key=True)
     distribution_file = db.Column(db.String(50), nullable=False)
     description = db.Column(db.String(300), nullable=False)
 
@@ -41,6 +40,7 @@ class Parameters(db.Model):
     __tablename__ = 'Parameters'
     id = db.Column(db.String(16), primary_key=True)
     admin = db.Column(db.String(14), db.ForeignKey(Admins.id))
+    is_pace = db.Column(db.Boolean, nullable=False)
     detail_id = db.Column(db.Integer, db.ForeignKey(Details.id), nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     start_time = db.Column(db.DateTime, nullable=True)
@@ -53,7 +53,3 @@ class Results(db.Model):
     parameter_id = db.Column(db.String(16), db.ForeignKey(Parameters.id), nullable=False)
     user_id = db.Column(db.String(14), db.ForeignKey('Users.id'))
     round = db.Column(db.Integer, nullable=False)
-
-
-
-

@@ -6,7 +6,6 @@ class Detail(Table):
         pass
 
     id = Col('id')
-    is_pace = Col('is_pace')
     distribution_file = Col('distribution_file')
     description = Col('description')
 
@@ -17,6 +16,7 @@ class Parameter(Table):
 
     id = Col('id')
     admin = Col('admin')
+    is_pace = Col('is_pace')
     detail_id = Col('detail_id', show=False)
     created_on = Col('created_on')
     on_going = Col('ongoing')

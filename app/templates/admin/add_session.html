@@ -2,15 +2,20 @@
 {% block content %}
     <h1>Here are a list of game templates you can chose from to create your session!</h1>
     <br>
-    {{ table.__html__() }}
+    {{ table }}
     <br>
     <form method="post">
         <label for="choice">Which template would you like to use?</label>
-        <select id="choice" required>
+        <select id="choice" name="choice" required>
             {% for choice in choices %}
                 <option value="{{ choice }}">{{ choice }}</option>
             {% endfor %}
         </select>
+        <br>
+        <label for="is_pace">Check the box for a paced game</label>
+        <input type="checkbox" name="is_pace" id="is_pace" value="1">
+        <input type="hidden" name="is_pace" value="0">
+        <br>
         <input type="submit" value="Create session!">
     </form>
 {% endblock %}

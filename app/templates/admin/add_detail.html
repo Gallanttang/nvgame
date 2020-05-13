@@ -2,11 +2,10 @@
 {% block content %}
     <h1>What kind of template would you like to add?</h1>
     <br>
-    <form action="post">
-        <label for="is_pace">I want a paced game</label>
-        <input type="checkbox" name="is_pace" id="is_pace">
+    <form method="post" id="add_det">
         <br>
-        <select id="distribution_file" required>
+        <label for="distribution_file">Choose a distribution:</label>
+        <select name="distribution_file" id="distribution_file" required>
             {% for distribution in distributions %}
                 <option value="{{ distribution }}">{{ distribution }}</option>
             {% endfor %}

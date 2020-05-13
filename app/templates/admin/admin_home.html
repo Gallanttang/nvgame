@@ -10,11 +10,15 @@
     <br>
     <a class="button" href="{{ url_for('reactivate_admin') }}">Reactivate an admin user</a>
     <br>
-    <a class="button" href="{{ url_for('add_session') }}">Start a new session</a>
+    <a class="button" href="{{ url_for('add_session') }}">Add a new session</a>
+    <br>
+    <a class="button" href="{{ url_for('start_session') }}">Start a new session</a>
     <br>
     <a class="button" href="{{ url_for('stop_session') }}">Stop an ongoing session</a>
     <br>
     <a class="button" href="{{ url_for('add_detail') }}">Add a new game template</a>
     <br>
     <a class="button" href="{{ url_for('remove_detail') }}">Remove an existing game template</a>
+    <br>
+    <a class="button" href="{{ url_for('add_distribution') }}">Add a new distribution</a>
 {% endblock %}

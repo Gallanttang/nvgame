@@ -9,7 +9,6 @@ from app import config
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config.from_object(obj=config.DevConfig)
 loginManager = LoginManager()
-loginManager.login_view = '/login.html'
 db = SQLAlchemy()
 
 from app import models

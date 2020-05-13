@@ -1,0 +1,48 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <form action="{{ url_for('process_add_distributions_parameters', distributions=distributions)}}" method="post">
+        {% for i in range(0, length) %}
+            <br>
+            {% if distributions[i] != 'Pool' and distributions[i] != 'Normal' %}
+                Input parameters for {{ distributions[i] }} distribution
+                {% if treatment > 2 %}
+                    for round {{ i + 1 }} <br>
+                {% endif %}
+                {% if distributions[i] == 'Triangular' %}
+                    Peak demand:
+                    <input name="peak_{{ i }}" type="number" step="1" min="0" required>
+                {% endif %}
+                Lower bound:
+                <input name="lower_bound_{{ i }}" type="number" step="1" min="0" required>
+                Upper bound:
+                <input name="upper_bound_{{ i }}" type="number" step="1" min="0" required>
+            {% elif distributions[i] == 'Pool' %}
+                Input sample pool
+                {% if treatment > 2 %}
+                    for round {{ i + 1 }} <br>
+                {% endif %}
+                Type out a list of numbers: a,b,c,d no whitespaces <br>
+                Sample: <input name="sample_{{ i }}" type="text" step="1" min="0" required>
+                <br>
+                How many past demands do you want to show?<br>
+                Show: <input name="show_{{ i }}" type="number" step="1" min="0" required>
+            {% else %}
+                Input value for Normal distribution
+                {% if treatment > 2 %}
+                    for round {{ i + 1 }} <br>
+                {% endif %}
+                Mean:
+                <input name="mean_{{ i }}" type="number" step="1" min="0" required>
+                Standard deviation:
+                <input name="standard_deviation_{{ i }}" type="number" step="1" min="0" required>
+            {% endif %}
+            <br>
+        {% endfor %}
+        <input type="hidden" name="treatment" value="{{ treatment }}">
+        <input type="hidden" name="name" value="{{ name }}">
+        <input type="hidden" name="rounds" value="{{ rounds }}">
+        <input type="hidden" name="wholesale_price" value="{{ wholesale_price }}">
+        <input type="hidden" name="retail_price" value="{{ retail_price }}">
+        <input type="submit" value="Create distribution file">
+    </form>
+{% endblock %}
