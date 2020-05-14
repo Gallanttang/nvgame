@@ -10,7 +10,7 @@
                max="99999999"
                required> <br>
         <label for="session_code">Session Code</label> <br>
-        <select id="session_code">
+        <select id="session_code" name="session_code">
             {% for i in range(0, length) %}
                 <option value="{{ options[i] }}">{{ options[i] }}</option>
             {% endfor %}

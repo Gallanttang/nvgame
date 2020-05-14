@@ -3,6 +3,7 @@ from flask import render_template, flash, redirect, url_for, request
 import os
 import shutil
 import json
+from datetime import datetime
 from flask_login import current_user, login_user, login_required
 
 
@@ -193,12 +194,12 @@ def start_session():
 
 @app.route('/admin/stop_session', methods=['POST'])
 @login_required
-def process_stop_session():
+def process_start_session():
     if check():
         return redirect(url_for('admin_login'))
     choice = request.form['choice']
-    stopping = models.Parameters.query.filter_by(id=choice)
-    stopping.ongoing = False
+    starting = models.Parameters.query.filter_by(id=choice)
+    starting.start = datetime.utcnow()
     db.session.commit()
     flash('The session ' + choice + ' has been ended')
     return redirect(url_for('admin_home'))

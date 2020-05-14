@@ -19,6 +19,6 @@ with app.app_context():
     db.create_all(app=app)
     migrate = Migrate(app=app, db=db)
 
-from app import routes_all, routes_admin
+from app import routes_all
 
 

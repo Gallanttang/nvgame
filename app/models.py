@@ -17,7 +17,7 @@ class Users(db.Model, UserMixin):
     __tablename__ = 'Users'
     # for students, first 8 characters are their student id.
     # 9-14 characters indicates the session
-    id = db.Column(db.String(14), primary_key=True)
+    id = db.Column(db.String(60), primary_key=True)
     admin = db.Column(db.Boolean, default=False, nullable=False)
     name = db.Column(db.String(60), nullable=False)
 
@@ -26,7 +26,7 @@ class Users(db.Model, UserMixin):
 class Admins(db.Model):
     default_password = 'OpLogAdmins!'
     __tablename__ = 'Admins'
-    id = db.Column(db.String(14), db.ForeignKey('Users.id'), primary_key=True)
+    id = db.Column(db.String(60), db.ForeignKey('Users.id'), primary_key=True)
     password = db.Column(db.String(12), default=default_password)
     active = db.Column(db.Boolean, default=True)
 
@@ -39,7 +39,7 @@ def load_user(user_id):
 class Parameters(db.Model):
     __tablename__ = 'Parameters'
     id = db.Column(db.String(16), primary_key=True)
-    admin = db.Column(db.String(14), db.ForeignKey(Admins.id))
+    admin = db.Column(db.String(60), db.ForeignKey(Admins.id))
     is_pace = db.Column(db.Boolean, nullable=False)
     detail_id = db.Column(db.Integer, db.ForeignKey(Details.id), nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.datetime.utcnow)

@@ -11,9 +11,9 @@
         <label for="name">Name</label> <br>
         <input type="text" id="name" name="name" required> <br>
         <label for="session_code">Session Code</label> <br>
-        <select id="session_code" required>
-            {% for i in range(0, length) %}
-                <option value="{{ options[i] }}">{{ options[i] }}</option>
+        <select id="session_code" name="session_code" required>
+            {% for option in options %}
+                <option value="{{ option }}">{{ option }}</option>
             {% endfor %}
         </select>
         <br>

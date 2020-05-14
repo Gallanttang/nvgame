@@ -1,7 +1,7 @@
 import json
 import numpy as np
-from app import app, db, models
-from flask import render_template, flash, redirect, url_for, request
+from app import app, db, models, routes_students, routes_admin
+from flask import render_template, flash, redirect, url_for, request, make_response, jsonify
 from flask_login import current_user, login_user, logout_user
 
 
@@ -19,37 +19,48 @@ def check_user():
 
 def generate_demand_same_distribution(distribution_type, distribution, rounds):
     if distribution_type == 'Normal':
-        return np.random.normal(distribution['mean'], distribution['standard_deviation'], rounds)
+        return np.random.normal(distribution[distribution_type]['mean'],
+                                distribution[distribution_type]['standard_deviation'],
+                                rounds)
     if distribution_type == 'Triangular':
-        return np.random.triangular(distribution['lower_bound'],
-                                    distribution['peak'],
-                                    distribution['upper_bound'], 0)
+        return np.random.triangular(distribution[distribution_type]['lower_bound'],
+                                    distribution[distribution_type]['peak'],
+                                    distribution[distribution_type]['upper_bound'],
+                                    rounds)
     if distribution_type == 'Uniform':
-        return np.random.uniform(distribution['lower_bound'], distribution['upper_bound'], 0)
+        return np.random.uniform(distribution[distribution_type]['lower_bound'],
+                                 distribution[distribution_type]['upper_bound'],
+                                 rounds)
     if distribution_type == 'Pool':
-        return distribution['sample']
+        return [0]
 
 
-def generate_demand(session):
-    session = models.Parameters.query.filter_by(id=session).first()
+def generate_demand(session_code):
+    session = models.Parameters.query.filter_by(id=session_code).first()
     did = session.detail_id
     detail = models.Details.query.filter_by(id=did).first()
-    with open('/app/distributions/'+detail.distribution_file) as json_file:
+    with open('app/distributions/'+detail.distribution_file) as json_file:
         data = json.load(json_file)
-        rounds = data['rounds']
+        data['session_code'] = session.id
+        data['is_pace'] = session.is_pace
         if data['treatment'] < 3:
             # will use one type of distribution to create demand for all rounds
             distribution = data['parameters'][0].keys()[0]
             par = data['parameters'][0][distribution]
-            return generate_demand_same_distribution(distribution, par, rounds)
+            data['demand'] = []
+            for demand in generate_demand_same_distribution(distribution, par, data['rounds']):
+                data['demand'].append(int(demand))
         else:
             # each round has a different type of demand distribution
-            parameters = data['parameters']
+            distributions = data['parameters']
             demand = []
-            for parameter in parameters:
-                key = parameter.keys()[0]
-                demand.append(generate_demand_same_distribution(key, parameter, 1)[0])
-            return demand
+            for distribution in distributions:
+                key = list(distribution.keys())[0]
+                demand.append(
+                    int(generate_demand_same_distribution(key, distribution, 1)[0])
+                )
+            data['demand'] = demand
+        return data
 
 
 def has_ongoing_session():
@@ -82,15 +93,14 @@ def login():
 @app.route('/login', methods=['POST'])
 def process_login():
     session_code = request.form['session_code']
-    is_pace = models.Parameters.query.filter_by(id=session_code).first().is_pace
     uid = request.form['uid']
     special_id = uid + session_code
     user = models.Users.query.filter_by(id=special_id).first()
     if user:
         login_user(user)
         values = generate_demand(session_code)
-        return redirect(url_for('game_start', value=values,
-                                is_pace=is_pace, session_code=session_code))
+        res = make_response(jsonify(values), 200)
+        return redirect(url_for('game_start', value=values))
     else:
         flash('You have the wrong login details!')
         return redirect(url_for('login'))
@@ -118,7 +128,7 @@ def process_signup():
         flash('Incorrect student number!')
         return redirect(url_for('signup'))
     special_id = uid + session_code
-    if len(special_id) <= 14:
+    if len(special_id) <= 60:
         check = models.Users.query.filter_by(id=special_id).first()
         if check:
             login_user(check)
@@ -127,10 +137,12 @@ def process_signup():
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
-        is_pace = models.Parameters.query.filter_by(id=session_code).first().is_pace
         values = generate_demand(session_code)
-        return redirect(url_for('game_start', value=values,
-                                is_pace=is_pace, session_code=session_code))
+        res = make_response(jsonify(values), 200)
+        return redirect(url_for('game_start', value=res))
+    else:
+        flash('Incorrect login details')
+        return redirect(url_for('index'))
 
 
 @app.route('/logout')

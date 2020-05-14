@@ -1,4 +1,4 @@
-from app import app, db, models, routes_all
+from app import app, db, models
 from flask_login import login_required, current_user
 from flask import render_template, flash, redirect, url_for, request
 
@@ -14,25 +14,25 @@ def unauthorized_entry():
 @login_required
 def game_start():
     try:
-        is_pace = request.args.get('is_pace')
-        values = request.args.getlist('values')
-        session_code = request.args.get('session_code')
+        values = request.args.get('value')
+        values = eval(values)
     except:
         return unauthorized_entry()
-    if not current_user.is_authenticated or not models.Parameters.query.filter_by(id=session_code).first():
+    if not current_user.is_authenticated \
+            or not models.Parameters.query.filter_by(id=values['session_code']).first():
         return unauthorized_entry()
-    if is_pace:
-        return redirect(url_for('game_paced', values=values, session_code=session_code))
-    else:
-        return redirect(url_for('game', values=values, session_code=session_code))
+    return values
+    # if is_pace:
+    #   return redirect(url_for('game_paced', values=values))
+    # else:
+    #   return redirect(url_for('game', values=values))
 
 
 @app.route('/students/game_paced', methods=['GET'])
 @login_required
 def game_paced():
     values = request.args.getlist('values')
-    session_code = request.args.get('session_code')
+    session_code = request.args.get('session_code', None)
+    rounds = len(values)
     if not current_user.is_authenticated or not models.Parameters.query.filter_by(id=session_code).first():
         return unauthorized_entry()
-    rounds = len(values)
-
