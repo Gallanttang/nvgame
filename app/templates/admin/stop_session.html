@@ -2,10 +2,10 @@
 {% block content %}
     <h1>Here the a list of active sessions</h1>
     <br>
-    {{ table.__html__() }}
+    {{ table }}
     <br>
     <form method="post">
-        <label for="choice">Which template would you like to delete?</label>
+        <label for="choice">Which session would you like to stop?</label>
         <select id="choice" required>
             {% for choice in choices %}
                 <option value="{{ choice }}">{{ choice }}</option>

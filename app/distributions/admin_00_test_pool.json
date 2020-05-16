@@ -1,0 +1,30 @@
+{
+  "treatment": 1,
+  "rounds": 10,
+  "wholesale_price": 20.0,
+  "retail_price": 30.0,
+  "parameters": [
+    {
+      "Pool": {
+        "sample": [
+          2,
+          3,
+          9,
+          5,
+          4,
+          5,
+          7,
+          2,
+          4,
+          3,
+          5,
+          1,
+          7,
+          8,
+          9
+        ],
+        "show": 2
+      }
+    }
+  ]
+}

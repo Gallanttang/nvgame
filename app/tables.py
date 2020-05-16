@@ -19,6 +19,6 @@ class Parameter(Table):
     is_pace = Col('is_pace')
     detail_id = Col('detail_id', show=False)
     created_on = Col('created_on')
-    on_going = Col('ongoing')
+    ongoing = Col('ongoing')
 
 

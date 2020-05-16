@@ -14,6 +14,7 @@ class Details(db.Model):
 
 # to store all users (student and admins)
 class Users(db.Model, UserMixin):
+    # change the id to only be the first 5 digits of sid and session coded
     __tablename__ = 'Users'
     # for students, first 8 characters are their student id.
     # 9-14 characters indicates the session
@@ -48,6 +49,7 @@ class Parameters(db.Model):
 
 
 class Results(db.Model):
+    # add a column to calculate how long it took to answer the question
     __tablename__ = 'Results'
     id = db.Column(db.Integer, primary_key=True)
     parameter_id = db.Column(db.String(16), db.ForeignKey(Parameters.id), nullable=False)

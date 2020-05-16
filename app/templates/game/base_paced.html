@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>OpLog Simulator</title>
+    <title>News Vendor Game</title>
+    <meta http-equiv="refresh" content="{{ sec }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="keywords" content="News Vendor, Supply Chain Management,">
     <meta name="description" content="UBC Sauder Supply Chain Management Online Tutorial Tool">
@@ -10,11 +10,9 @@
 <body>
 {% if current_user.is_authenticated %}
     <div>
-        OpLog: <a href="{{ url_for('logout') }}">Sign out</a> <a href="/history">View History</a>
+        OpLog: <a href="/signout">Sign out</a> <a href="/history">View History</a>
     </div>
 {% endif %}
-
-<h3> Welcome back {{ current_user.name }}! </h3>
 
 <hr>
 {% with messages = get_flashed_messages() %}
@@ -26,7 +24,6 @@
         </ul>
     {% endif %}
 {% endwith %}
-<br>
 
 {% block content %}
 {% endblock %}

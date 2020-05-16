@@ -81,7 +81,7 @@ def deactivate_admin():
     if check():
         return redirect(url_for('admin_login'))
     actives = models.Admins.query.filter_by(active=True).all()
-    if len(actives) < 1:
+    if len(actives) > 1:
         choices = []
         for option in actives:
             choices.append(option.id)
@@ -180,7 +180,7 @@ def start_session():
         return redirect(url_for('admin_login'))
     choices = []
     param = models.Parameters.query.filter(models.Parameters.ongoing == True and
-                                           models.Parameters.start_time is None).all()
+                                           models.Parameters.start_time).all()
     if not param:
         flash('No active sessions that were not yet started were found.')
         return redirect(url_for('admin_home'))
@@ -188,20 +188,19 @@ def start_session():
         choices.append(pid.id)
     table = tables.Parameter(param)
     table.border = True
-    return render_template('admin/stop_session.html',
+    return render_template('admin/start_session.html', choices=choices,
                            table=table, current_user=current_user)
 
 
-@app.route('/admin/stop_session', methods=['POST'])
+@app.route('/admin/start_session', methods=['POST'])
 @login_required
 def process_start_session():
     if check():
         return redirect(url_for('admin_login'))
     choice = request.form['choice']
-    starting = models.Parameters.query.filter_by(id=choice)
-    starting.start = datetime.utcnow()
+    starting = models.Parameters.query.filter_by(id=choice).update(dict(start_time=datetime.utcnow()))
     db.session.commit()
-    flash('The session ' + choice + ' has been ended')
+    flash('The session ' + choice + ' has been started')
     return redirect(url_for('admin_home'))
 
 
@@ -220,7 +219,7 @@ def stop_session():
         choices.append(pid.id)
     table = tables.Parameter(param)
     table.border = True
-    return render_template('admin/stop_session.html',
+    return render_template('admin/stop_session.html', choices=choices,
                            table=table, current_user=current_user)
 
 
@@ -261,7 +260,7 @@ def add_detail():
 def process_add_detail():
     print(request.form)
     did = current_user.id + '_' + str(len(models.Details.query.filter(
-        models.Details.id.match(current_user.id + "%")).all()))
+        models.Details.id.like(current_user.id + "%")).all()))
     distribution_file = request.form['distribution_file']
     description = request.form['description']
     new_detail = models.Details(id=did,
@@ -366,6 +365,15 @@ def process_add_distributions_parameters():
                     pool.append(int(number))
             except:
                 flash('Invalid input for sample pool')
+                return redirect(url_for('add_distributions_parameters',
+                                        treatment=treatment, rounds=rounds,
+                                        wholesale_price=wholesale_price,
+                                        retail_price=retail_price,
+                                        distributions=distributions, length=length,
+                                        name=name, current_user=current_user))
+            if treatment <= 2 and len(pool) < (show + rounds):
+                flash('Invalid input for sample pool, there must be as much or more of numbers '
+                      'in the list than there are to show + # rounds!')
                 return redirect(url_for('add_distributions_parameters',
                                         treatment=treatment, rounds=rounds,
                                         wholesale_price=wholesale_price,

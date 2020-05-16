@@ -1,16 +1,18 @@
 {% extends 'admin/base.html' %}
+
 {% block content %}
     <h1>Here are a list of game templates you can chose from to create your session!</h1>
     <br>
     {{ table }}
     <br>
     <form method="post">
-        <label for="choice">Which template would you like to delete?</label>
-        <select id="choice" required>
+        <label for="choice">Which session would you like to start?</label>
+        <select id="choice" name="choice" required>
             {% for choice in choices %}
                 <option value="{{ choice }}">{{ choice }}</option>
             {% endfor %}
         </select>
-        <input type="submit" value="Delete this template">
+        <br>
+        <input type="submit" value="Start session!">
     </form>
 {% endblock %}

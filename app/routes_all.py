@@ -14,7 +14,7 @@ def check_user():
         if check_is_admin(current_user):
             return redirect(url_for('admin_home'))
         else:
-            return redirect(url_for('game_start'))
+            return redirect(url_for('game_initiate'))
 
 
 def generate_demand_same_distribution(distribution_type, distribution, rounds):
@@ -99,8 +99,7 @@ def process_login():
     if user:
         login_user(user)
         values = generate_demand(session_code)
-        res = make_response(jsonify(values), 200)
-        return redirect(url_for('game_start', value=values))
+        return redirect(url_for('game_initiate', values=values))
     else:
         flash('You have the wrong login details!')
         return redirect(url_for('login'))
@@ -132,14 +131,13 @@ def process_signup():
         check = models.Users.query.filter_by(id=special_id).first()
         if check:
             login_user(check)
-            redirect(url_for('game_start'))
+            redirect(url_for('game_initiate'))
         new_user = models.Users(id=special_id, admin=False, name=name)
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
         values = generate_demand(session_code)
-        res = make_response(jsonify(values), 200)
-        return redirect(url_for('game_start', value=res))
+        return redirect(url_for('game_initiate', values=values))
     else:
         flash('Incorrect login details')
         return redirect(url_for('index'))
