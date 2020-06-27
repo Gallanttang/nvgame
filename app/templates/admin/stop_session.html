@@ -6,7 +6,7 @@
     <br>
     <form method="post">
         <label for="choice">Which session would you like to stop?</label>
-        <select id="choice" required>
+        <select id="choice" name="choice" required>
             {% for choice in choices %}
                 <option value="{{ choice }}">{{ choice }}</option>
             {% endfor %}

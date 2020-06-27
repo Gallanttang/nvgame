@@ -12,10 +12,8 @@
     <div>
         OpLog: <a href="{{ url_for('logout') }}">Sign out</a> <a href="/history">View History</a>
     </div>
+    <h3> Welcome back {{ current_user.name }}! </h3>
 {% endif %}
-
-<h3> Welcome back {{ current_user.name }}! </h3>
-
 <hr>
 {% with messages = get_flashed_messages() %}
     {% if messages %}

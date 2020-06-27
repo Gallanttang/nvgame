@@ -1,7 +1,7 @@
 import json
 import numpy as np
 from app import app, db, models, routes_students, routes_admin
-from flask import render_template, flash, redirect, url_for, request, make_response, jsonify
+from flask import render_template, flash, redirect, url_for, request, session
 from flask_login import current_user, login_user, logout_user
 
 
@@ -18,31 +18,36 @@ def check_user():
 
 
 def generate_demand_same_distribution(distribution_type, distribution, rounds):
+    rv = 0
     if distribution_type == 'Normal':
-        return np.random.normal(distribution[distribution_type]['mean'],
+        rv = np.random.normal(distribution[distribution_type]['mean'],
                                 distribution[distribution_type]['standard_deviation'],
                                 rounds)
     if distribution_type == 'Triangular':
-        return np.random.triangular(distribution[distribution_type]['lower_bound'],
+        rv = np.random.triangular(distribution[distribution_type]['lower_bound'],
                                     distribution[distribution_type]['peak'],
                                     distribution[distribution_type]['upper_bound'],
                                     rounds)
     if distribution_type == 'Uniform':
-        return np.random.uniform(distribution[distribution_type]['lower_bound'],
+        rv = np.random.uniform(distribution[distribution_type]['lower_bound'],
                                  distribution[distribution_type]['upper_bound'],
                                  rounds)
     if distribution_type == 'Pool':
         return [0]
+    if rv < 0:
+        return generate_demand_same_distribution(distribution_type, distribution, rounds)
+    else:
+        return rv
 
 
 def generate_demand(session_code):
-    session = models.Parameters.query.filter_by(id=session_code).first()
-    did = session.detail_id
+    sesh = models.Parameters.query.filter_by(id=session_code).first()
+    did = sesh.detail_id
     detail = models.Details.query.filter_by(id=did).first()
     with open('app/distributions/'+detail.distribution_file) as json_file:
         data = json.load(json_file)
-        data['session_code'] = session.id
-        data['is_pace'] = session.is_pace
+        data['session_code'] = sesh.id
+        data['is_pace'] = sesh.is_pace
         if data['treatment'] < 3:
             # will use one type of distribution to create demand for all rounds
             distribution = data['parameters'][0].keys()[0]
@@ -98,8 +103,8 @@ def process_login():
     user = models.Users.query.filter_by(id=special_id).first()
     if user:
         login_user(user)
-        values = generate_demand(session_code)
-        return redirect(url_for('game_initiate', values=values))
+        session['values'] = generate_demand(session_code)
+        return redirect(url_for('game_initiate'))
     else:
         flash('You have the wrong login details!')
         return redirect(url_for('login'))
@@ -111,8 +116,8 @@ def signup():
     options = []
     ongoing_sessions = has_ongoing_session()
     if ongoing_sessions:
-        for session in ongoing_sessions:
-            options.append(session.id)
+        for sesh in ongoing_sessions:
+            options.append(sesh.id)
     else:
         return redirect(url_for('index'))
     return render_template('signup.html', options=options, current_user=current_user)
@@ -123,9 +128,6 @@ def process_signup():
     session_code = request.form['session_code']
     uid = str(request.form['uid'])
     name = request.form['name']
-    if len(uid) != 8:
-        flash('Incorrect student number!')
-        return redirect(url_for('signup'))
     special_id = uid + session_code
     if len(special_id) <= 60:
         check = models.Users.query.filter_by(id=special_id).first()
@@ -136,8 +138,8 @@ def process_signup():
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
-        values = generate_demand(session_code)
-        return redirect(url_for('game_initiate', values=values))
+        session['values'] = generate_demand(session_code)
+        return redirect(url_for('game_initiate'))
     else:
         flash('Incorrect login details')
         return redirect(url_for('index'))

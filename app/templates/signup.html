@@ -2,18 +2,20 @@
 
 {% block content %}
     <h1>Sign Up!</h1>
-    <form action="" method="post"=e>
-        <label for="uid">Student Number</label> <br>
+    <form action="" method="post">
+        <label for="uid">First 5 Numbers Of Student Number</label> <br>
         <input type="number" id="uid" name="uid" step="1"
-               min="10000000"
-               max="99999999"
+               min="10000"
+               max="99999"
                required> <br>
         <label for="name">Name</label> <br>
         <input type="text" id="name" name="name" required> <br>
         <label for="session_code">Session Code</label> <br>
         <select id="session_code" name="session_code" required>
             {% for option in options %}
-                <option value="{{ option }}">{{ option }}</option>
+                <option value="{{ option }}">
+                    {{ option }}
+                </option>
             {% endfor %}
         </select>
         <br>

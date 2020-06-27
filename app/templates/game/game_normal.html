@@ -19,28 +19,19 @@
             Distribution
         </strong>
     </p>
+    {% if distribution == 'Pool' %}
+            <p>Historical Demand Samples: {{ to_show }}</p>
+            <p>Demands From Previous Rounds: {{ previous }}</p>
+        {% elif distribution == 'Normal' %}
+            <p>Demand Mean: {{ values['parameters'][current - 1][distribution]['mean'] }}</p>
+            <p>Demand Standard Deviation: {{ values['parameters'][current - 1][distribution]['standard_deviation'] }}</p>
+        {% elif distribution == 'Triangular' %}
+            <p>Demand Peak: {{ demand_peak }}</p>
+        {% elif distribution == 'Uniform' %}
+            <p>Demand Range: {{ demand_range }}</p>
+        {% endif %}
     {% if values['treatment'] < 3 %}
-        {% if distribution == 'Pool' %}
-            <p>Historical Demand Samples: {{ to_show }}</p>
-            <p>Demands From Previous Rounds: {{ previous }}</p>
-            <p>Demand Range: {{ demand_range }}</p>
-        {% elif distribution == 'Normal' %}
-            <p>Demand Mean: {{ values['parameters'][current - 1][distribution]['mean'] }}</p>
-            <p>Demand Standard Deviation: {{ values['parameters'][current - 1][distribution]['standard_deviation'] }}</p>
-        {% elif distribution == 'Triangular' %}
-            <p>Demand Peak: {{ demand_peak }}</p>
-        {% endif %}
-    {% else %}
-        {% if distribution == 'Pool' %}
-            <p>Historical Demand Samples: {{ to_show }}</p>
-            <p>Demands From Previous Rounds: {{ previous }}</p>
-            <p>Demand Range: {{ demand_range }}</p>
-        {% elif distribution == 'Normal' %}
-            <p>Demand Mean: {{ values['parameters'][current - 1][distribution]['mean'] }}</p>
-            <p>Demand Standard Deviation: {{ values['parameters'][current - 1][distribution]['standard_deviation'] }}</p>
-        {% elif distribution == 'Triangular' %}
-            <p>Demand Peak: {{ demand_peak }}</p>
-        {% endif %}
+        {{ demand }}
     {% endif %}
     <br>
     <form method="post">
@@ -49,7 +40,7 @@
             <input type="number" step="1" min="0" id="ordered" name="ordered" required>
         </p>
         <p>
-            <input type="submit" value="Send order for the day!">
+            <input type="submit" value="Send order for today!">
         </p>
     </form>
 {% endblock %}

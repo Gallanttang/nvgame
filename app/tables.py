@@ -20,5 +20,13 @@ class Parameter(Table):
     detail_id = Col('detail_id', show=False)
     created_on = Col('created_on')
     ongoing = Col('ongoing')
+    start_time = Col('start_time')
 
 
+class Admins(Table):
+    def sort_url(self, col_id, reverse=False):
+        pass
+
+    id = Col('id')
+    password = Col('password', show=False)
+    active = Col('active')

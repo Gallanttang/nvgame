@@ -49,30 +49,36 @@ def admin_home():
     return render_template('admin/admin_home.html', current_user=current_user)
 
 
-@app.route('/admin/add_admin', methods=['GET', 'POST'])
+@app.route('/admin/add_admin', methods=['GET'])
 @login_required
 def add_admin():
     if check():
         return redirect(url_for('admin_login'))
-    form = forms.AddAdmin()
-    if form.validate_on_submit():
-        new_id = form.username.data
-        password = form.password.data
-        name = form.name.data
-        user = models.Admins.query.filter_by(id=new_id).first()
-        if not user:
-            new_user = models.Users(id=new_id, admin=True, name=name)
-            new_admin = models.Admins(id=new_id, password=password, active=True)
-            db.session.add(new_user)
-            db.session.commit()
-            db.session.add(new_admin)
-            db.session.commit()
-            flash(new_id + ' is now an admin')
-        else:
-            flash('This username has already been taken, try a different one')
-            return redirect(url_for('add_admin'))
+    all_users = models.Admins.query.all()
+    table = tables.Admins(all_users)
+    return render_template('admin/add_admin.html', current_user=current_user, table=table)
+
+
+@app.route('/admin/add_admin', methods=['POST'])
+@login_required
+def process_add_admin():
+    if check():
+        return redirect(url_for('admin_login'))
+    username = request.form['username']
+    password = request.form['password']
+    name = request.form['name']
+    if models.Admins.query.filter_by(id=username).first() is None and\
+            models.Users.query.filter_by(id=username).first() is None:
+        user = models.Users(id=username, admin=True, name=name)
+        admin = models.Admins(id=username, password=password, active=True)
+        db.session.add(user)
+        db.session.add(admin)
+        db.session.commit()
+        flash('Admin ' + username + ' has successfully been added')
         return redirect(url_for('admin_home'))
-    return render_template('admin/add_admin.html', form=form, current_user=current_user)
+    else:
+        flash('That username has already been taken, please chose another username')
+        return redirect(url_for('add_admin'))
 
 
 @app.route('/admin/deactivate_admin', methods=['GET'])
@@ -97,7 +103,8 @@ def deactivate_admin():
 @app.route('/admin/deactivate_admin', methods=['POST'])
 @login_required
 def process_deactivate_admin():
-    to_deactivate = request.form['choice']
+    print(request.form)
+    to_deactivate = request.form['to_deactivate']
     models.Admins.filter_by(id=to_deactivate).update(dict(active=False))
     db.session.commit()
     flash('The admin user ' + to_deactivate + 'has been deactivated successfully')
@@ -179,8 +186,7 @@ def start_session():
     if check():
         return redirect(url_for('admin_login'))
     choices = []
-    param = models.Parameters.query.filter(models.Parameters.ongoing == True and
-                                           models.Parameters.start_time).all()
+    param = models.Parameters.query.filter(models.Parameters.ongoing == True).all()
     if not param:
         flash('No active sessions that were not yet started were found.')
         return redirect(url_for('admin_home'))
@@ -198,7 +204,8 @@ def process_start_session():
     if check():
         return redirect(url_for('admin_login'))
     choice = request.form['choice']
-    starting = models.Parameters.query.filter_by(id=choice).update(dict(start_time=datetime.utcnow()))
+    starting = models.Parameters.query.filter_by(id=choice).first()
+    starting.start_time = datetime.utcnow()
     db.session.commit()
     flash('The session ' + choice + ' has been started')
     return redirect(url_for('admin_home'))
@@ -229,7 +236,7 @@ def process_stop_session():
     if check():
         return redirect(url_for('admin_login'))
     choice = request.form['choice']
-    stopping = models.Parameters.query.filter_by(id=choice)
+    stopping = models.Parameters.query.filter_by(id=choice).first()
     stopping.ongoing = False
     db.session.commit()
     flash('The session ' + choice + ' has been ended')
@@ -258,7 +265,6 @@ def add_detail():
 @app.route('/admin/add_detail', methods=['POST'])
 @login_required
 def process_add_detail():
-    print(request.form)
     did = current_user.id + '_' + str(len(models.Details.query.filter(
         models.Details.id.like(current_user.id + "%")).all()))
     distribution_file = request.form['distribution_file']
@@ -284,10 +290,25 @@ def remove_detail():
     table = tables.Detail(details)
     table.border = True
     choices = []
-    for did in details.id:
-        choices.append(did)
+    for did in details:
+        choices.append(did.id)
+    if len(choices):
+        flash('There are no details to remove')
+        redirect(url_for('admin_home'))
     return render_template('admin/remove_detail.html', table=table,
                            choices=choices, current_user=current_user)
+
+
+@app.route('/admin/remove_detail', methods=['POST'])
+@login_required
+def process_remove_detail():
+    did = request.form['choice']
+    new_detail = models.Details.query.filter_by(id=did).first()
+
+    db.session.delete(new_detail)
+    db.session.commit()
+    flash('You have successfully delete the detail ' + did + '!')
+    return redirect(url_for('admin_home'))
 
 
 @app.route('/admin/add_distribution', methods=['GET'])

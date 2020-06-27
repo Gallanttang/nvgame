@@ -4,7 +4,7 @@
     <br>
     <form action="" method="post">
         <label for="choice">Choose from this menu:</label>
-        <select id="choice" required>
+        <select id="choice" name="choice" required>
             {% for i in range(0, length) %}
                 <option value="{{ choices[i] }}">{{ choices[i] }}</option>
             {% endfor %}

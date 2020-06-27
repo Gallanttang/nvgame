@@ -1,0 +1,27 @@
+{% extends 'game/base_normal.html' %}
+
+{% block content %}
+    <h1>End of day{% if values['treatment'] < 3 %} {{ day }} {% endif %} </h1>
+    <br/>
+    <p>Inventory on hands today: {{ ordered }}</p>
+    <br/>
+    <p>Actual demand for today: {{ demand }}</p>
+    <br/>
+    <p>Number of units sold today: {{ sold }}</p>
+    <br/>
+    <p>Lost sales in unit today: {{ lost }}</p>
+    <br/>
+    <p>Revenue today: {{ revenue }}</p>
+    <br/>
+    {% if values['treatment'] == 3 or values['treatment'] == 1 %}
+        <p>Cost today: {{ cost }}</p>
+        <br/>
+        <p>Profit: {{ profit }}</p>
+        <br/>
+        <p>Total profit: {{ total_profit }}</p>
+        <br/>
+    {% endif %}
+    <form action="{{ url_for('game_normal') }}" method="get">
+        <button type="submit"> Next day </button>
+    </form>
+{% endblock %}

@@ -1,22 +1,22 @@
 {% extends 'admin/base.html' %}
 {% block content %}
     <h1>Admin Creation</h1> <br>
+    <h1>Here are a list of admin user names that you cannot use!</h1>
+    <br/>
+    {{ table }}
     <form method="post">
-        {{ form.hidden_tag() }}
         <p>
-            {{ form.username.label }} <br>
-            {{ form.username() }}
+            <label for="username">Please select a username that is under eight characters: </label>
+            <input type="text" id="username" name="username" maxlength="8" required>
         </p>
-        <br>
         <p>
-            {{ form.password.label }} <br>
-            {{ form.password() }}
+            <label for="password">Please select a password that is under eight characters: </label>
+            <input type="text" id="password" name="password" maxlength="8" required>
         </p>
-        <br>
         <p>
-            {{ form.name.label }} <br>
-            {{ form.name() }}
+            <label for="password">What is the name of the new admin: </label>
+            <input type="text" id="name" name="name" required>
         </p>
-        <p>{{ form.submit() }}</p>
+        <input type="submit" value="Create admin">
     </form>
 {% endblock %}

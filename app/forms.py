@@ -26,13 +26,6 @@ class AdminSignInForm(FlaskForm):
     submit = SubmitField('Sign In')
 
 
-class AddAdmin(FlaskForm):
-    username = StringField('New Username', validators=[validators.DataRequired()])
-    password = StringField('New Password', validators=[validators.DataRequired()])
-    name = StringField('Name of Admin', validators=[validators.DataRequired()])
-    submit = SubmitField('Create Admin')
-
-
 class InputForm(FlaskForm):
     input = IntegerField('How many orders?', validators=[validators.DataRequired()])
     submit = SubmitField('Send Order!')

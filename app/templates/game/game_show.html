@@ -1,0 +1,30 @@
+{% extends 'game/base_normal.html' %}
+
+{% block content %}
+
+    <h1> End of day
+        {% if game_mode == 1 or game_mode == 2 %}
+            {{ current }}!
+        {% endif %}
+    </h1>
+    <br/>
+    <p>Number of Rounds: {{ values['rounds'] }}</p>
+    <p>Unit Wholesale Price: ${{ values['wholesale_price'] }}</p>
+    <p>Unit Retail Price: ${{ values['retail_price'] }}</p>
+    <p>
+        <strong>
+            Demand Pattern: FROM
+            {% if distribution != 'Pool' %}
+                {{ distribution }}
+            {% else %}
+                Sample
+            {% endif %}
+            Distribution
+        </strong>
+    </p>
+    Your order: {{ ordered }}
+    <br>
+    {% if game_mode == 1 or game_mode == 2 %}
+        Your profit: {{ values['demand'][current] }}!
+    {% endif %}
+{% endblock %}

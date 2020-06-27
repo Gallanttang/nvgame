@@ -1,11 +1,14 @@
 {% extends 'admin/base.html' %}
 
 {% block content %}
-    <h1>Here are a list of game templates you can chose from to create your session!</h1>
-    <br>
+    <h1>Here are a list of sessions you can choose to start!</h1>
+    <br/>
+
     {{ table }}
     <br>
     <form method="post">
+        <h2>Please only start session with a blank start_time!</h2>
+        <br/>
         <label for="choice">Which session would you like to start?</label>
         <select id="choice" name="choice" required>
             {% for choice in choices %}
