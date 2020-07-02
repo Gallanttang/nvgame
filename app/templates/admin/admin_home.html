@@ -10,13 +10,17 @@
     <br>
     <a class="button" href="{{ url_for('reactivate_admin') }}">Reactivate an admin user</a>
     <br>
+    <a class="button" href="{{ url_for('download_data') }}">Download database as CSV</a>
+    <br>
     <a class="button" href="{{ url_for('add_session') }}">Add a new session</a>
     <br>
     <a class="button" href="{{ url_for('start_session') }}">Start a new session</a>
     <br>
     <a class="button" href="{{ url_for('stop_session') }}">Stop an ongoing session</a>
     <br>
-    <a class="button" href="{{ url_for('add_detail') }}">Add a new game template</a>
+    <a class="button" href="{{ url_for('add_detail') }}">Create a new game template</a>
+    <br>
+    <a class="button" href="{{ url_for('add_detail_file') }}">add a csv game template</a>
     <br>
     <a class="button" href="{{ url_for('remove_detail') }}">Remove an existing game template</a>
     <br>

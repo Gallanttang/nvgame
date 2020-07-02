@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <title>News Vendor Game</title>
-    <meta http-equiv="refresh" content="{{ sec }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="keywords" content="News Vendor, Supply Chain Management,">
     <meta name="description" content="UBC Sauder Supply Chain Management Online Tutorial Tool">
+
 </head>
 <body>
 {% if current_user.is_authenticated %}
     <div>
-        OpLog: <a href="/signout">Sign out</a> <a href="/history">View History</a>
+        OpLog: <a href={{ url_for('logout') }}>Sign out</a>
     </div>
 {% endif %}
 

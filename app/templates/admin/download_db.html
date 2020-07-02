@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block content %}
+    <h1>Please choose the sessions you want to analyze</h1>
+    <form method="post">
+        <label for="to_save">Choose the session which results you're trying to save</label>
+        <select id="to_save" name="to_save" required>
+            {% for session in sesh %}
+                <option value="{{ session }}">{{ session }}</option>>
+            {% endfor %}
+        </select>
+        <label for="name">What would you like to name the file?</label>
+        <input id="name" name="name" type="text" required>
+        <input type="submit" value="Convert to CSV">
+    </form>
+{% endblock %}

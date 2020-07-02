@@ -18,7 +18,7 @@ def check_user():
 
 
 def generate_demand_same_distribution(distribution_type, distribution, rounds):
-    rv = 0
+    rv = [0]
     if distribution_type == 'Normal':
         rv = np.random.normal(distribution[distribution_type]['mean'],
                                 distribution[distribution_type]['standard_deviation'],
@@ -33,11 +33,9 @@ def generate_demand_same_distribution(distribution_type, distribution, rounds):
                                  distribution[distribution_type]['upper_bound'],
                                  rounds)
     if distribution_type == 'Pool':
-        return [0]
-    if rv < 0:
-        return generate_demand_same_distribution(distribution_type, distribution, rounds)
-    else:
-        return rv
+        return ["S"]
+
+    return rv
 
 
 def generate_demand(session_code):
@@ -50,20 +48,29 @@ def generate_demand(session_code):
         data['is_pace'] = sesh.is_pace
         if data['treatment'] < 3:
             # will use one type of distribution to create demand for all rounds
-            distribution = data['parameters'][0].keys()[0]
-            par = data['parameters'][0][distribution]
+            distribution = list(data['parameters'][0].keys())[0]
+            print(distribution)
             data['demand'] = []
-            for demand in generate_demand_same_distribution(distribution, par, data['rounds']):
-                data['demand'].append(int(demand))
+            if distribution != "Pool":
+                rv = generate_demand_same_distribution(distribution, data['parameters'][0], data['rounds'])
+                for demand in rv:
+                    if int(demand) < 0:
+                        data['demand'].append(0)
+                    else:
+                        data['demand'].append(int(demand))
+            else:
+                for i in range(0, data['rounds']):
+                    data['demand'].append('S')
         else:
             # each round has a different type of demand distribution
             distributions = data['parameters']
             demand = []
             for distribution in distributions:
                 key = list(distribution.keys())[0]
-                demand.append(
-                    int(generate_demand_same_distribution(key, distribution, 1)[0])
-                )
+                if key == 'Pool':
+                    demand.append("S")
+                else:
+                    demand.append(int(generate_demand_same_distribution(key, distribution, 1)[0]))
             data['demand'] = demand
         return data
 
@@ -134,7 +141,11 @@ def process_signup():
         if check:
             login_user(check)
             redirect(url_for('game_initiate'))
-        new_user = models.Users(id=special_id, admin=False, name=name)
+        new_user = models.Users(
+            id=special_id,
+            admin=False,
+            name=name
+        )
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)

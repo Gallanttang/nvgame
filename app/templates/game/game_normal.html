@@ -1,10 +1,14 @@
-{% extends 'game/base_normal.html' %}
+{% if sec > 0 %}
+    {% extends 'game/base_paced.html' %}
+{% else %}
+    {% extends 'game/base_normal.html' %}
+{% endif %}
 
 {% block content %}
 
-    <h1> Start of day {% if game_mode == 1 or game_mode == 2 %}
+    <h1> Start of{% if treatment < 3 %} day {% else %} round {% endif %}
         {{ current }}!
-    {% endif %}</h1>
+    </h1>
     <br/>
     <p>Number of Rounds: {{ values['rounds'] }}</p>
     <p>Unit Wholesale Price: ${{ values['wholesale_price'] }}</p>
@@ -20,28 +24,43 @@
         </strong>
     </p>
     {% if distribution == 'Pool' %}
-            <p>Historical Demand Samples: {{ to_show }}</p>
-            <p>Demands From Previous Rounds: {{ previous }}</p>
-        {% elif distribution == 'Normal' %}
-            <p>Demand Mean: {{ values['parameters'][current - 1][distribution]['mean'] }}</p>
-            <p>Demand Standard Deviation: {{ values['parameters'][current - 1][distribution]['standard_deviation'] }}</p>
-        {% elif distribution == 'Triangular' %}
-            <p>Demand Peak: {{ demand_peak }}</p>
-        {% elif distribution == 'Uniform' %}
-            <p>Demand Range: {{ demand_range }}</p>
-        {% endif %}
-    {% if values['treatment'] < 3 %}
-        {{ demand }}
+        <p>Historical Demand Samples: {{ to_show }}</p>
+    {% elif distribution == 'Normal' %}
+        <p>Demand Mean: {{ values['parameters'][par_no][distribution]['mean'] }}</p>
+        <p>Demand Standard Deviation: {{ values['parameters'][par_no][distribution]['standard_deviation'] }}</p>
+    {% elif distribution == 'Triangular' %}
+        <p>Demand Peak: {{ values['parameters'][par_no][distribution]['peak'] }}</p>
+        <p>Demand Lower Bound: {{ values['parameters'][par_no][distribution]['lower_bound'] }}</p>
+        <p>Demand Upper Bound: {{ values['parameters'][par_no][distribution]['upper_bound'] }}</p>
+    {% elif distribution == 'Uniform' %}
+        <p>Demand Lower Bound: {{ values['parameters'][par_no][distribution]['lower_bound'] }}</p>
+        <p>Demand Upper Bound: {{ values['parameters'][par_no][distribution]['upper_bound'] }}</p>
     {% endif %}
     <br>
-    <form method="post">
-        <p>
+    {% if values['is_pace'] == true %}
+        <SCRIPT LANGUAGE="JavaScript">
+            window.onload = function () {
+                window.setTimeout(function () {
+                    document.orderForm.submit();
+                }, {{ sec }});
+            }
+        </SCRIPT>
+        <form name="orderForm" action="" method="post">
+            <p>
+                <label for="ordered">Place your order here:</label>
+                <input type="number" step="1" min="0" id="ordered" name="ordered" required>
+            </p>
+            Your order will submit itself in {{ sec/1000 }} seconds!
+        </form>
+    {% else %}
+        <form name="orderForm" action="" method="post">
             <label for="ordered">Place your order here:</label>
-            <input type="number" step="1" min="0" id="ordered" name="ordered" required>
-        </p>
-        <p>
-            <input type="submit" value="Send order for today!">
-        </p>
-    </form>
+
+                <input type="number" step="1" min="0" id="ordered" name="ordered" required>
+            <p>
+                <input type="submit" value="Send order for today!">
+            </p>
+        </form>
+    {% endif %}
 {% endblock %}
 

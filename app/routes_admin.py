@@ -1,8 +1,6 @@
 from app import app, models, db, forms, tables
 from flask import render_template, flash, redirect, url_for, request
-import os
-import shutil
-import json
+import csv, os, shutil, json
 from datetime import datetime
 from flask_login import current_user, login_user, login_required
 
@@ -49,6 +47,47 @@ def admin_home():
     return render_template('admin/admin_home.html', current_user=current_user)
 
 
+@app.route('/admin/download_csv', methods=['GET'])
+@login_required
+def download_data():
+    if check():
+        return redirect(url_for('admin_login'))
+    sessions = models.Results.query.all()
+    sesh = {}
+    for session in sessions:
+        sesh[session.parameter_id] = 1
+    sesh = list(sesh.keys())
+    if len(sesh) == 0:
+        flash('There have not been any games played yet!')
+        return redirect(url_for('admin_home'))
+    return render_template('admin/download_db.html', current_user=current_user, sesh=sesh)
+
+
+@app.route('/admin/download_csv', methods=['POST'])
+@login_required
+def process_download_data():
+    to_save = request.form['to_save']
+    name = request.form['name']
+    dest = name + ".csv"
+    with open(dest, 'w') as outfile:
+        outcsv = csv.writer(outfile)
+        records = models.Results.query.filter_by(parameter_id=to_save).all()
+        outcsv.writerow(['id', 'session_code', 'user_id', 'round',
+                         'distribution', 'demanded', 'ordered', 'time_taken_in_sec'])
+        if records:
+            for row in records:
+                if row.time_answered is not None and row.ordered is not None:
+                    save = [row.id, row.parameter_id, row.user_id, row.round, row.distribution, row.demanded]
+                    time_taken = (row.time_answered-row.time_start).total_seconds()
+                    save.append(time_taken)
+                    print(save)
+                    outcsv.writerow(save)
+            shutil.move(os.getcwd() + '/' + dest, os.getcwd() + '/app/csv/' + dest)
+            flash('The csv file ' + name + ' has been successfully created. '
+                                           'You may find it in the folder on PythonAnywhere')
+            return redirect(url_for('admin_home'))
+
+
 @app.route('/admin/add_admin', methods=['GET'])
 @login_required
 def add_admin():
@@ -56,6 +95,7 @@ def add_admin():
         return redirect(url_for('admin_login'))
     all_users = models.Admins.query.all()
     table = tables.Admins(all_users)
+    table.border = True
     return render_template('admin/add_admin.html', current_user=current_user, table=table)
 
 
@@ -67,7 +107,7 @@ def process_add_admin():
     username = request.form['username']
     password = request.form['password']
     name = request.form['name']
-    if models.Admins.query.filter_by(id=username).first() is None and\
+    if models.Admins.query.filter_by(id=username).first() is None and \
             models.Users.query.filter_by(id=username).first() is None:
         user = models.Users(id=username, admin=True, name=name)
         admin = models.Admins(id=username, password=password, active=True)
@@ -465,7 +505,76 @@ def process_add_distributions_parameters():
     with open(dest, 'w') as outfile:
         outfile.write('')
         json.dump(dumping, outfile)
-
     shutil.move(os.getcwd() + '/' + dest, os.getcwd() + '/app/distributions/' + dest)
     flash('The detail ' + name + ' has been successfully created')
     return redirect(url_for('admin_home'))
+
+
+@app.route('/admin/upload_distribution_parameters', methods=['GET'])
+@login_required
+def add_detail_file():
+    if check():
+        return redirect(url_for('admin_login'))
+    csv_path = os.getcwd() + '/app/csv'
+    csv_files = []
+    for f in os.listdir(csv_path):
+        if os.path.isfile(os.path.join(csv_path, f)):
+            if f.endswith('.csv'):
+                csv_files.append(f)
+    if len(csv_files) < 1:
+        flash('Create a csv file first!')
+        return redirect(url_for('admin_home'))
+    return render_template('admin/add_csv.html', current_user=current_user, csv_files=csv_files)
+
+
+@app.route('/admin/upload_distribution_parameters', methods=['GET'])
+@login_required
+def process_add_detail_file():
+    file_name = request.form['csv_file']
+    dumping = {'parameters': []}
+    with open(os.getcwd() + '/app/csv/' + file_name, 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        dumping['rounds'] = sum(1 for line in reader) - 1
+        for i, row in enumerate(reader):
+            if i < 1:
+                dumping['treatment'] = row[0] if 0 < int(row[0]) < 5 else 1
+                if isinstance(row[1], int) and isinstance(row[2], int):
+                    dumping['wholesale_price'] = row[1] \
+                        if 0 < int(row[1]) < int(row[2]) else int(row[2]) + 1
+            else:
+                to_dump = {}
+                if row[0] == 'Normal':
+                    to_dump["Normal"] = {
+                        "mean": row[1],
+                        "standard_deviation": row[2]
+                    }
+                elif row[0] == 'Triangular':
+                    to_dump["Triangular"] = {
+                        "lower_bound": row[1],
+                        "upper_bound": row[2],
+                        "peak": row[3]
+                    }
+                elif row[0] == 'Uniform':
+                    to_dump['Uniform'] = {
+                        "lower_bound": row[1],
+                        "upper_bound": row[2]
+                    }
+                elif row[0] == 'Pool':
+                    to_dump['Pool'] = {
+                        "sample": [],
+                        "show": row[1]
+                    }
+                    for j, column in enumerate(row):
+                        if j > 1:
+                            to_dump['Pool']['sample'].append(column)
+                else:
+                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                    return redirect(url_for('admin_home'))
+                dumping['parameters'].append(to_dump)
+        dest = current_user.id + file_name + '.json'
+        with open(dest, 'w') as outfile:
+            outfile.write('')
+            json.dump(dumping, outfile)
+        shutil.move(os.getcwd() + '/' + dest, os.getcwd() + '/app/distributions/' + dest)
+        flash('The detail ' + file_name + ' has been successfully created')
+        return redirect(url_for('admin_home'))

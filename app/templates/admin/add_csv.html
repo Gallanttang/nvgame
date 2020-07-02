@@ -1,0 +1,14 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+    <form action="{{ url_for('process_upload') }}" method="post">
+        <label for="csv_file">Choose a distribution:</label>
+        <select name="csv_file" id="distribution_file" required>
+            {% for file in csv_files %}
+                <option value="{{ file }}">{{ file }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="submit" value="Choose the CSV file" name="submit">
+    </form>
+{% endblock %}

@@ -1,27 +1,29 @@
-{% extends 'game/base_normal.html' %}
+{% if sec > 0 %}
+    {% extends 'game/base_paced.html' %}
+{% else %}
+    {% extends 'game/base_normal.html' %}
+{% endif %}
+
 
 {% block content %}
-    <h1>End of day{% if values['treatment'] < 3 %} {{ day }} {% endif %} </h1>
-    <br/>
-    <p>Inventory on hands today: {{ ordered }}</p>
-    <br/>
-    <p>Actual demand for today: {{ demand }}</p>
-    <br/>
-    <p>Number of units sold today: {{ sold }}</p>
-    <br/>
-    <p>Lost sales in unit today: {{ lost }}</p>
-    <br/>
+    <h1>End of{% if treatment < 3 %} day {% else %} round {% endif %}{{ day }} </h1>
+    <p>Inventory on hands today: {{ ordered }} units </p>
+    <p>Actual demand for today: {{ demand }} units </p>
+    <p>Number of units sold today: {{ sold }} units </p>
+    <p>Lost sales in unit today: {{ lost }} units</p>
     <p>Revenue today: {{ revenue }}</p>
-    <br/>
-    {% if values['treatment'] == 3 or values['treatment'] == 1 %}
-        <p>Cost today: {{ cost }}</p>
-        <br/>
-        <p>Profit: {{ profit }}</p>
-        <br/>
-        <p>Total profit: {{ total_profit }}</p>
-        <br/>
+    {% if treatment == 3 or treatment == 1 %}
+        <p>Cost today: ${{ cost }}</p>
+        <p>Profit: ${{ profit }}</p>
+        <p>Total profit: ${{ total_profit }}</p>
     {% endif %}
-    <form action="{{ url_for('game_normal') }}" method="get">
+    {% if values['is_pace'] %}
+        <form action="{{ url_for('game_paced') }}" method="get">
         <button type="submit"> Next day </button>
     </form>
+    {% else %}
+        <form action="{{ url_for('game_normal') }}" method="get">
+            <button type="submit"> Next day </button>
+        </form>
+    {% endif %}
 {% endblock %}

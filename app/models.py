@@ -22,6 +22,11 @@ class Users(db.Model, UserMixin):
     name = db.Column(db.String(60), nullable=False)
 
 
+@loginManager.user_loader
+def load_user(user_id):
+    return Users.query.filter_by(id=user_id).first()
+
+
 # keeps a special record of who is an admin (has passwords too)
 class Admins(db.Model):
     default_password = 'OpLogAdmins!'
@@ -29,11 +34,6 @@ class Admins(db.Model):
     id = db.Column(db.String(60), db.ForeignKey('Users.id'), primary_key=True)
     password = db.Column(db.String(12), default=default_password)
     active = db.Column(db.Boolean, default=True)
-
-
-@loginManager.user_loader
-def load_user(user_id):
-    return Users.query.get(user_id)
 
 
 class Parameters(db.Model):

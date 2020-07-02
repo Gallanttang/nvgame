@@ -1,6 +1,6 @@
 {% extends 'admin/base.html' %}
 {% block content %}
-    <form action="{{ url_for('process_add_distributions_parameters', distributions=distributions)}}" method="post">
+    <form action="{{ url_for('process_add_distributions_parameters', distributions=distributions) }}" method="post">
         {% for i in range(0, length) %}
             <br>
             {% if distributions[i] != 'Pool' and distributions[i] != 'Normal' %}

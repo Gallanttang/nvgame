@@ -10,7 +10,7 @@
 <body>
 {% if current_user.is_authenticated %}
     <div>
-        OpLog: <a href="{{ url_for('logout') }}">Sign out</a> <a href="/history">View History</a>
+        OpLog: <a href="{{ url_for('logout') }}">Sign out</a>
     </div>
 {% endif %}
 
