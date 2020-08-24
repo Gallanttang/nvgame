@@ -549,6 +549,7 @@ def process_add_detail_file():
     with open(os.getcwd() + '/app/csv/' + file_name, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
         dumping['rounds'] = sum(1 for line in csv_reader) - 1
+        print(dumping)
         for i, row in enumerate(csv_reader):
             print(row)
             to_dump = {}
