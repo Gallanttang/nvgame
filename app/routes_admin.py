@@ -1,6 +1,9 @@
 from app import app, models, db, forms, tables
 from flask import render_template, flash, redirect, url_for, request
-import csv, os, shutil, json
+import csv
+import os
+import shutil
+import json
 from datetime import datetime
 from flask_login import current_user, login_user, login_required
 
@@ -72,20 +75,26 @@ def process_download_data():
     with open(dest, 'w') as outfile:
         outcsv = csv.writer(outfile)
         records = models.Results.query.filter_by(parameter_id=to_save).all()
-        outcsv.writerow(['id', 'session_code', 'user_id', 'round',
-                         'distribution', 'demanded', 'ordered', 'time_taken_in_sec'])
-        if records:
-            for row in records:
-                if row.time_answered is not None and row.ordered is not None:
-                    save = [row.id, row.parameter_id, row.user_id, row.round, row.distribution, row.demanded]
-                    time_taken = (row.time_answered-row.time_start).total_seconds()
-                    save.append(time_taken)
-                    print(save)
-                    outcsv.writerow(save)
-            shutil.move(os.getcwd() + '/' + dest, os.getcwd() + '/app/csv/' + dest)
-            flash('The csv file ' + name + ' has been successfully created. '
-                                           'You may find it in the folder on PythonAnywhere')
-            return redirect(url_for('admin_home'))
+        parameter = models.Parameters.query.filter_by(id=to_save).first()
+        detail = models.Details.query.filter_by(id=parameter.detail_id).first()
+        with open('app/distributions/' + detail.distribution_file) as json_file:
+            data = json.load(json_file)
+            outcsv.writerow(['id', 'session_code', 'user_id', 'round',
+                             'distribution', 'wholesale_price', 'retail_price',
+                             'demanded', 'ordered', 'time_taken_in_sec'])
+            if records:
+                for row in records:
+                    if row.time_answered is not None and row.ordered is not None:
+                        save = [row.id, row.parameter_id, row.user_id, row.round, row.distribution,
+                                data['wholesale_price'], data['retail_price'], row.demanded]
+                        time_taken = (row.time_answered - row.time_start).total_seconds()
+                        save.append(time_taken)
+                        print(save)
+                        outcsv.writerow(save)
+                shutil.move(os.getcwd() + '/' + dest, os.getcwd() + '/app/data/' + dest)
+                flash('The csv file ' + name + ' has been successfully created. '
+                                               'You may find it in the folder on PythonAnywhere')
+                return redirect(url_for('admin_home'))
 
 
 @app.route('/admin/add_admin', methods=['GET'])
@@ -527,50 +536,67 @@ def add_detail_file():
     return render_template('admin/add_csv.html', current_user=current_user, csv_files=csv_files)
 
 
-@app.route('/admin/upload_distribution_parameters', methods=['GET'])
+@app.route('/admin/upload_distribution_parameters', methods=['POST'])
 @login_required
 def process_add_detail_file():
     file_name = request.form['csv_file']
-    dumping = {'parameters': []}
+    dumping = {
+        'parameters': [],
+        'treatment': int(request.form['treatment']),
+        'wholesale_price': float(request.form['wholesale_price']),
+        'retail_price': float(request.form['retail_price'])
+    }
     with open(os.getcwd() + '/app/csv/' + file_name, 'r') as csv_file:
-        reader = csv.reader(csv_file)
-        dumping['rounds'] = sum(1 for line in reader) - 1
-        for i, row in enumerate(reader):
-            if i < 1:
-                dumping['treatment'] = row[0] if 0 < int(row[0]) < 5 else 1
-                if isinstance(row[1], int) and isinstance(row[2], int):
-                    dumping['wholesale_price'] = row[1] \
-                        if 0 < int(row[1]) < int(row[2]) else int(row[2]) + 1
-            else:
-                to_dump = {}
-                if row[0] == 'Normal':
-                    to_dump["Normal"] = {
-                        "mean": row[1],
-                        "standard_deviation": row[2]
-                    }
-                elif row[0] == 'Triangular':
-                    to_dump["Triangular"] = {
-                        "lower_bound": row[1],
-                        "upper_bound": row[2],
-                        "peak": row[3]
-                    }
-                elif row[0] == 'Uniform':
-                    to_dump['Uniform'] = {
-                        "lower_bound": row[1],
-                        "upper_bound": row[2]
-                    }
-                elif row[0] == 'Pool':
-                    to_dump['Pool'] = {
-                        "sample": [],
-                        "show": row[1]
-                    }
-                    for j, column in enumerate(row):
-                        if j > 1:
-                            to_dump['Pool']['sample'].append(column)
-                else:
+        csv_reader = csv.reader(csv_file)
+        dumping['rounds'] = sum(1 for line in csv_reader) - 1
+        for i, row in enumerate(csv_reader):
+            print(row)
+            to_dump = {}
+            if row[0] == 'Normal':
+                if not isinstance(row[1], int) or not isinstance(row[2], int) \
+                        or row[1] < 0 or row[2] < 0:
                     flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
                     return redirect(url_for('admin_home'))
-                dumping['parameters'].append(to_dump)
+                to_dump["Normal"] = {
+                    "mean": row[1],
+                    "standard_deviation": row[2]
+                }
+            elif row[0] == 'Triangular':
+                if not isinstance(row[1], int) or not isinstance(row[2], int) or \
+                        not isinstance(row[3], int) or not (row[1] < row[3] < row[2]):
+                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                    return redirect(url_for('admin_home'))
+                to_dump["Triangular"] = {
+                    "lower_bound": row[1],
+                    "upper_bound": row[2],
+                    "peak": row[3]
+                }
+            elif row[0] == 'Uniform':
+                if not isinstance(row[1], int) or not isinstance(row[2], int) or row[1] < row[2]:
+                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                    return redirect(url_for('admin_home'))
+                to_dump['Uniform'] = {
+                    "lower_bound": row[1],
+                    "upper_bound": row[2]
+                }
+            elif row[0] == 'Pool':
+                if not isinstance(row[1], int) or row[1] < 0:
+                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                    return redirect(url_for('admin_home'))
+                to_dump['Pool'] = {
+                    "sample": [],
+                    "show": row[1]
+                }
+                for j, column in enumerate(row):
+                    if j > 1:
+                        if not isinstance(column, int) or column < 0:
+                            flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                            return redirect(url_for('admin_home'))
+                        to_dump['Pool']['sample'].append(column)
+            else:
+                flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                return redirect(url_for('admin_home'))
+            dumping['parameters'].append(to_dump)
         dest = current_user.id + file_name + '.json'
         with open(dest, 'w') as outfile:
             outfile.write('')

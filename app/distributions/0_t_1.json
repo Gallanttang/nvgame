@@ -1,1 +1,14 @@
-{"treatment": 1, "rounds": 10, "wholesale_price": 10.0, "retail_price": 12.0, "parameters": [{"Normal": {"mean": 100, "standard_deviation": 20}}]}
+{
+  "treatment": 1,
+  "rounds": 10,
+  "wholesale_price": 10.0,
+  "retail_price": 12.0,
+  "parameters": [
+    {
+      "Normal": {
+        "mean": 100,
+        "standard_deviation": 20
+      }
+    }
+  ]
+}

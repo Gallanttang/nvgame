@@ -38,13 +38,7 @@
     {% endif %}
     <br>
     {% if values['is_pace'] == true %}
-        <SCRIPT LANGUAGE="JavaScript">
-            window.onload = function () {
-                window.setTimeout(function () {
-                    document.orderForm.submit();
-                }, {{ sec }});
-            }
-        </SCRIPT>
+
         <form name="orderForm" action="" method="post">
             <p>
                 <label for="ordered">Place your order here:</label>

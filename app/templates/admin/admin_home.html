@@ -1,28 +1,93 @@
 {% extends 'admin/base.html' %}
 
 {% block content %}
-
-    What would you like to do today?
-    <br>
-    <a class="button" href="{{ url_for('add_admin') }}">Add a new admin user</a>
-    <br>
-    <a class="button" href="{{ url_for('deactivate_admin') }}">Deactivate an admin user</a>
-    <br>
-    <a class="button" href="{{ url_for('reactivate_admin') }}">Reactivate an admin user</a>
-    <br>
-    <a class="button" href="{{ url_for('download_data') }}">Download database as CSV</a>
-    <br>
-    <a class="button" href="{{ url_for('add_session') }}">Add a new session</a>
-    <br>
-    <a class="button" href="{{ url_for('start_session') }}">Start a new session</a>
-    <br>
-    <a class="button" href="{{ url_for('stop_session') }}">Stop an ongoing session</a>
-    <br>
-    <a class="button" href="{{ url_for('add_detail') }}">Create a new game template</a>
-    <br>
-    <a class="button" href="{{ url_for('add_detail_file') }}">add a csv game template</a>
-    <br>
-    <a class="button" href="{{ url_for('remove_detail') }}">Remove an existing game template</a>
-    <br>
-    <a class="button" href="{{ url_for('add_distribution') }}">Add a new distribution</a>
+    <table style="width:100%" border="true">
+        <tr>
+            <th>Page</th>
+            <th>How to use</th>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('add_admin') }}">Add a new admin user</a></td>
+            <td>
+                There will be a table that shows all the existing admin users in the system.
+                From that you will have to choose a new username and password. Both must be under 8 characters
+                long.
+                If you choose an ID username that already exists, the system will notify you.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('deactivate_admin') }}">Deactivate an admin user</a></td>
+            <td>
+                There is a drop down menu that will allow you to choose the admin user to deactivate.
+                Deactivated admin users can be reactivated for later use.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('reactivate_admin') }}">Reactivate an admin user</a></td>
+            <td>
+                There is a drop down menu that will allow you to choose the admin user to reactivate.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('download_data') }}">Download database as CSV</a></td>
+            <td>
+                There is a drop down menu that will allow you to choose the game session to download.
+                You can name the file and should be able to find the downloaded version on pythonanywhere's
+                folder.
+                It will be under the file /nvgame/app/data.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('add_session') }}">Add a new session</a></td>
+            <td>
+                There is a table which shows all of the game templates to start a game.
+                Choose the appropriate template and decide whether the game is a paced game or not.
+                Finally, create the session.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('start_session') }}">Start a new session</a></td>
+            <td>
+                There is a table which shows all of the game templates to start a game.
+                Choose the appropriate template and decide whether the game is a paced game or not.
+                Finally, create the session.
+                This session must be started @ "start a new session screen" for students to see it.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('stop_session') }}">Stop an ongoing session</a></td>
+            <td>
+                There is a table which shows all of the ongoing sessions.
+                Select the session you would like to stop in the drop down menu.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('add_detail') }}">Create a new game template</a></td>
+            <td>
+                Choose a distribution that has been created to be used for the game template.
+                Give this template a description.
+                Select the session you would like to stop in the drop down menu.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('add_detail_file') }}">Add a csv game template</a></td>
+            <td>
+                Choose a distribution that has been created to be used for the game template.
+                Give this template a description.
+                Select the session you would like to stop in the drop down menu.
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('remove_detail') }}">Remove an existing game template</a></td>
+            <td>
+                Choose a template to delete from the drop down menu and click the delete button
+            </td>
+        </tr>
+        <tr>
+            <td><a class="button" href="{{ url_for('add_distribution') }}">Add a new distribution</a></td>
+            <td>
+                Follow the instructions on the page itself.
+            </td>
+        </tr>
+    </table>
 {% endblock %}

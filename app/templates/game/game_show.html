@@ -24,7 +24,7 @@
     </p>
     Your order: {{ ordered }}
     <br>
-    {% if game_mode == 1 or game_mode == 2 %}
+    {% if game_mode == 1 or game_mode == 3 %}
         Your profit: {{ values['demand'][current] }}!
     {% endif %}
 {% endblock %}

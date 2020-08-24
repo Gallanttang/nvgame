@@ -1,3 +1,4 @@
+from sqlalchemy import and_
 from app import app, db, models
 from flask_login import login_required, current_user
 from flask import render_template, flash, redirect, url_for, request, session
@@ -26,14 +27,17 @@ def get_data():
 # record the player's condition at the start of the round
 def record_start(values, distribution, demanded):
     # unique_id = current_user.id + str(values['current'])
-    result = models.Results(
-        parameter_id=values['session_code'],
-        user_id=current_user.id, round=values['current']-1,
-        distribution=distribution, demanded=demanded,
-        time_start=datetime.utcnow(),
-        ordered=None, time_answered=None)
-    db.session.add(result)
-    db.session.commit()
+    if not models.Results.query.filter(and_(models.Results.parameter_id == values['session_code'],
+                                            models.Results.user_id == current_user.id,
+                                            models.Results.round == values['current']-1)).first():
+        result = models.Results(
+            parameter_id=values['session_code'],
+            user_id=current_user.id, round=values['current']-1,
+            distribution=distribution, demanded=demanded,
+            time_start=datetime.utcnow(),
+            ordered=None, time_answered=None)
+        db.session.add(result)
+        db.session.commit()
 
 
 # update the record on the player's order decision
@@ -61,8 +65,24 @@ def game_initiate():
     print(values)
     if not values:
         return unauthorized_entry()
+    results = models.Results.query.filter(
+        models.Results.user_id == current_user.id,
+        models.Results.parameter_id == values['session_code'],
+        models.Results.ordered is not None
+    ).all()
     values['current'] = 1
     values['total_profit'] = 0
+    if 0 < len(results) < values['rounds']:
+        values['current'] = len(results)
+        values['total_profit'] = 0
+        for result in results:
+            ordered = result.ordered
+            sold = min(result.demanded, result.ordered)
+            profit = (sold * values['retail_price']) - (ordered * values['wholesale_price'])
+            values['total_profit'] += profit
+    elif len(results) >= values['rounds']:
+        flash('you have already completed this game')
+        return redirect(url_for('game_end'))
     session['values'] = values
     if values['is_pace']:
         values['start_time'] = models.Parameters.query.filter_by(id=values['session_code']).first().start_time
@@ -127,13 +147,12 @@ def game_t12(sec):
     values['current'] = 1 + current
     rounds = values['rounds']
     treatment = values['treatment']
-    demand = values['demand']
     distribution = list(values['parameters'][0].keys())[0]
     if current <= rounds:
         if distribution == "Sample":
             sample = values['parameters'][0]['Pool']['sample']
             show = values['parameters'][0]['Pool']['show']
-            to_show = sample[0:show]
+            to_show = sample[0:show+current-1]
             session['values'] = values
             print(session['values'])
             return render_template(
@@ -183,7 +202,7 @@ def process_game(sec):
     session['values'] = values
     treatment = values['treatment']
     return render_template('game/game_normal_end.html', values=values,
-                           treatment=treatment,
+                           treatment=treatment, sold=sold,
                            ordered=ordered, day=day, lost=lost,
                            cost=cost, revenue=revenue,
                            demand=demand, profit=profit,
@@ -212,13 +231,13 @@ def show_results_normal():
 @app.route('/students/game_paced', methods=['GET'])
 @login_required
 def game_paced():
-    return game(10000)
+    return game(30000)
 
 
 @app.route('/students/game_paced', methods=['POST'])
 @login_required
 def process_game_paced():
-    return process_game(10000)
+    return process_game(30000)
 
 
 @app.route('/student/game_end', methods=['GET'])

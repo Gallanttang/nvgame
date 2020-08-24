@@ -11,19 +11,21 @@
     <p>Actual demand for today: {{ demand }} units </p>
     <p>Number of units sold today: {{ sold }} units </p>
     <p>Lost sales in unit today: {{ lost }} units</p>
-    <p>Revenue today: {{ revenue }}</p>
     {% if treatment == 3 or treatment == 1 %}
+        <p>Revenue today: {{ revenue }}</p>
         <p>Cost today: ${{ cost }}</p>
         <p>Profit: ${{ profit }}</p>
         <p>Total profit: ${{ total_profit }}</p>
     {% endif %}
     {% if values['is_pace'] %}
-        <form action="{{ url_for('game_paced') }}" method="get">
-        <button type="submit"> Next day </button>
-    </form>
+        <form action="{{ url_for('game_paced') }}" name="orderForm" method="get">
+            PLEASE DO NOT PRESS THE BUTTON UNLESS INSTRUCTED,
+            PAGE WILL PROGRESS AUTOMATICALLY <br>
+            <button type="submit"> Next day</button>
+        </form>
     {% else %}
         <form action="{{ url_for('game_normal') }}" method="get">
-            <button type="submit"> Next day </button>
+            <button type="submit"> Next day</button>
         </form>
     {% endif %}
 {% endblock %}

@@ -1,14 +1,28 @@
 {% extends 'admin/base.html' %}
 
 {% block content %}
-    <form action="{{ url_for('process_upload') }}" method="post">
+    <form action="{{ url_for('process_add_detail_file') }}" method="post">
         <label for="csv_file">Choose a distribution:</label>
         <select name="csv_file" id="distribution_file" required>
             {% for file in csv_files %}
                 <option value="{{ file }}">{{ file }}</option>
             {% endfor %}
         </select>
-
+        <br>
+        <label for="treatment">What type of treatment group is this template for?</label>
+        <select id="treatment" name="treatment" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <br>
+        <label for="wholesale_price">Set the wholesale price</label>
+        <input type="number" name="wholesale_price" id="wholesale_price" step="0.01" required>
+        <br>
+        <label for="retail_price">Set the retail price (higher than wholesale)</label>
+        <input type="number" name="retail_price" id="retail_price" step="0.01" required>
+        <br>
         <input type="submit" value="Choose the CSV file" name="submit">
     </form>
 {% endblock %}

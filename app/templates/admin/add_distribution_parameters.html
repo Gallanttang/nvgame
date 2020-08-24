@@ -5,7 +5,7 @@
             <br>
             {% if distributions[i] != 'Pool' and distributions[i] != 'Normal' %}
                 Input parameters for {{ distributions[i] }} distribution
-                {% if treatment > 2 %}
+                {% if treatment < 3 %}
                     for round {{ i + 1 }} <br>
                 {% endif %}
                 {% if distributions[i] == 'Triangular' %}
@@ -18,7 +18,7 @@
                 <input name="upper_bound_{{ i }}" type="number" step="1" min="0" required>
             {% elif distributions[i] == 'Pool' %}
                 Input sample pool
-                {% if treatment > 2 %}
+                {% if treatment < 3 %}
                     for round {{ i + 1 }} <br>
                 {% endif %}
                 Type out a list of numbers: a,b,c,d no whitespaces <br>
@@ -28,7 +28,7 @@
                 Show: <input name="show_{{ i }}" type="number" step="1" min="0" required>
             {% else %}
                 Input value for Normal distribution
-                {% if treatment > 2 %}
+                {% if treatment < 3 %}
                     for round {{ i + 1 }} <br>
                 {% endif %}
                 Mean:
