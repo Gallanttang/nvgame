@@ -58,26 +58,29 @@ def record_result(values, ordered):
         db.session.commit()
 
 
+# This page helps to set up the game depending on the user
+# It will find records, if any, on a user and whether they have played the game
+# The game will adjust itself based on the results
 @app.route('/students', methods=['GET'])
 @login_required
 def game_initiate():
     values = get_data()
-    print(values)
     if not values:
         return unauthorized_entry()
     results = models.Results.query.filter(
         models.Results.user_id == current_user.id,
-        models.Results.parameter_id == values['session_code'],
-        models.Results.ordered is not None
+        models.Results.parameter_id == values['session_code']
     ).all()
     values['current'] = 1
     values['total_profit'] = 0
     if 0 < len(results) < values['rounds']:
-        values['current'] = len(results)
-        values['total_profit'] = 0
-        for result in results:
-            ordered = result.ordered
-            sold = min(result.demanded, result.ordered)
+        values['current'] = len(results) + 1
+        for i, result in enumerate(results):
+            if result.ordered is None or not isinstance(result.ordered, int):
+                values['current'] = int(result.round)
+                break
+            ordered = int(result.ordered)
+            sold = min(int(result.demanded), int(result.ordered))
             profit = (sold * values['retail_price']) - (ordered * values['wholesale_price'])
             values['total_profit'] += profit
     elif len(results) >= values['rounds']:
@@ -93,6 +96,7 @@ def game_initiate():
                                 current_user=current_user))
 
 
+# This function handles the information to display in the game
 def game(sec):
     values = get_data()
     if not values or \
@@ -100,9 +104,11 @@ def game(sec):
             not models.Parameters.query.filter(models.Parameters.id == values['session_code'],
                                                models.Parameters.ongoing == True).first():
         return unauthorized_entry()
+    # Moves to helper function for when the session is using treatments 3/4
     if values['treatment'] < 3:
         return game_t12(sec)
     else:
+        # Pulls data from the client's session data (it is on their browser)
         current = values['current']
         values['current'] += 1
         rounds = values['rounds']
@@ -111,11 +117,14 @@ def game(sec):
         past_demand = demand[0:current - 2]
         if current <= rounds:
             distribution = list(values['parameters'][current - 1].keys())[0]
-            record_start(values, distribution, demand[current - 1])
             if demand[current - 1] == "S":
                 sample = values['parameters'][current - 1]['Pool']['sample']
                 show = values['parameters'][current - 1]['Pool']['show']
-                to_show = sample[0:show-1]
+                if show >= len(sample):
+                    show = len(sample) - 1
+                values['parameters'][current - 1]['Pool']['show'] += 1
+                to_show = sample[0:show]
+                record_start(values, distribution, sample[show])
                 session['values'] = values
                 return render_template(
                     'game/game_normal.html', current_user=current_user,
@@ -123,8 +132,8 @@ def game(sec):
                     distribution=distribution, is_paced=values['is_pace'], order=True,
                     to_show=to_show, par_no=current-1, sec=sec
                 )
+            record_start(values, distribution, demand[current - 1])
             session['values'] = values
-            print(values)
             distribution = list(values['parameters'][current - 1].keys())[0]
             return render_template(
                 'game/game_normal.html', current_user=current_user,
@@ -136,6 +145,7 @@ def game(sec):
             return redirect(url_for('game_end'))
 
 
+# Game mode for treatments 1 and 2
 def game_t12(sec):
     values = get_data()
     if not values or \
@@ -147,14 +157,15 @@ def game_t12(sec):
     values['current'] = 1 + current
     rounds = values['rounds']
     treatment = values['treatment']
-    distribution = list(values['parameters'][0].keys())[0]
+    demand = values['demand']
     if current <= rounds:
+        distribution = list(values['parameters'][0].keys())[0]
         if distribution == "Sample":
             sample = values['parameters'][0]['Pool']['sample']
             show = values['parameters'][0]['Pool']['show']
-            to_show = sample[0:show+current-1]
+            to_show = sample[0:show + current]
+            record_start(values, distribution, sample[show + current])
             session['values'] = values
-            print(session['values'])
             return render_template(
                 'game/game_normal.html', current_user=current_user,
                 values=values, current=current,
@@ -164,6 +175,7 @@ def game_t12(sec):
                 sec=sec, order=True
             )
         else:
+            record_start(values, distribution, demand[current - 1])
             session['values'] = values
             return render_template(
                 'game/game_normal.html', current_user=current_user,
@@ -175,13 +187,17 @@ def game_t12(sec):
         return redirect(url_for('game_end'))
 
 
+# Processes the user input and records their result
 def process_game(sec):
     values = get_data()
     if not values or \
             not current_user.is_authenticated or \
             not models.Parameters.query.filter_by(id=values['session_code']).first():
         return unauthorized_entry()
-    ordered = request.form['ordered']
+    try:
+        ordered = int(request.form['ordered'])
+    except:
+        ordered = 0
     record_result(values, ordered)
     day = values['current'] - 1
     if values['treatment'] < 3:
@@ -193,7 +209,9 @@ def process_game(sec):
         demand = values['parameters'][day-1]['Pool']['sample'][show + 1]
     else:
         demand = values['demand'][day-1]
-    sold = demand if int(demand) < int(ordered) else int(ordered)  # choose the smaller of the two
+    sold = int(ordered)
+    if int(demand) < int(ordered):
+        sold = demand # choose the smaller of the two
     lost = demand - int(ordered) if demand > int(ordered) else 0
     cost = int(ordered) * values['wholesale_price']
     revenue = sold * values['retail_price']

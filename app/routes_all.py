@@ -113,7 +113,7 @@ def process_login():
         session['values'] = generate_demand(session_code)
         return redirect(url_for('game_initiate'))
     else:
-        flash('You have the wrong login details!')
+        flash('You have incorrect login details!')
         return redirect(url_for('login'))
 
 
@@ -140,7 +140,7 @@ def process_signup():
         check = models.Users.query.filter_by(id=special_id).first()
         if check:
             login_user(check)
-            redirect(url_for('game_initiate'))
+            return redirect(url_for('game_initiate'))
         new_user = models.Users(
             id=special_id,
             admin=False,

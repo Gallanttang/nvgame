@@ -546,54 +546,60 @@ def process_add_detail_file():
         'wholesale_price': float(request.form['wholesale_price']),
         'retail_price': float(request.form['retail_price'])
     }
-    with open(os.getcwd() + '/app/csv/' + file_name, 'r') as csv_file:
+    print(os.getcwd() + '/app/csv/' + file_name)
+    with open(os.getcwd() + '/app/csv/' + file_name, 'r', encoding='utf-8-sig') as csv_file:
         csv_reader = csv.reader(csv_file)
-        dumping['rounds'] = sum(1 for line in csv_reader) - 1
-        print(dumping)
+        dumping['rounds'] = 0
         for i, row in enumerate(csv_reader):
-            print(row)
+            dumping['rounds'] += 1
             to_dump = {}
-            if row[0] == 'Normal':
-                if not isinstance(row[1], int) or not isinstance(row[2], int) \
-                        or row[1] < 0 or row[2] < 0:
+            # if row[0] == 'Normal':
+            #     if not isinstance(row[1], int) or not isinstance(row[2], int) \
+            #             or row[1] < 0 or row[2] < 0:
+            #         flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+            #         return redirect(url_for('admin_home'))
+            #     to_dump["Normal"] = {
+            #         "mean": row[1],
+            #         "standard_deviation": row[2]
+            #     }
+            # elif row[0] == 'Triangular':
+            #     if not isinstance(row[1], int) or not isinstance(row[2], int) or \
+            #             not isinstance(row[3], int) or not (row[1] < row[3] < row[2]):
+            #         flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+            #         return redirect(url_for('admin_home'))
+            #     to_dump["Triangular"] = {
+            #         "lower_bound": row[1],
+            #         "upper_bound": row[2],
+            #         "peak": row[3]
+            #     }
+            # elif row[0] == 'Uniform':
+            #     if not isinstance(row[1], int) or not isinstance(row[2], int) or row[1] < row[2]:
+            #         flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+            #         return redirect(url_for('admin_home'))
+            #     to_dump['Uniform'] = {
+            #         "lower_bound": row[1],
+            #         "upper_bound": row[2]
+            #     }
+            if row[0] == 'Pool':
+                try:
+                    row[1] = int(row[1])
+                    if row[1] < 0:
+                        flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                        return redirect(url_for('admin_home'))
+                    to_dump['Pool'] = {
+                        "sample": [],
+                        "show": row[1]
+                    }
+                    for j, column in enumerate(row):
+                        if j > 1:
+                            column = int(column)
+                            if column < 0:
+                                flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
+                                return redirect(url_for('admin_home'))
+                            to_dump['Pool']['sample'].append(column)
+                except:
                     flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
                     return redirect(url_for('admin_home'))
-                to_dump["Normal"] = {
-                    "mean": row[1],
-                    "standard_deviation": row[2]
-                }
-            elif row[0] == 'Triangular':
-                if not isinstance(row[1], int) or not isinstance(row[2], int) or \
-                        not isinstance(row[3], int) or not (row[1] < row[3] < row[2]):
-                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
-                    return redirect(url_for('admin_home'))
-                to_dump["Triangular"] = {
-                    "lower_bound": row[1],
-                    "upper_bound": row[2],
-                    "peak": row[3]
-                }
-            elif row[0] == 'Uniform':
-                if not isinstance(row[1], int) or not isinstance(row[2], int) or row[1] < row[2]:
-                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
-                    return redirect(url_for('admin_home'))
-                to_dump['Uniform'] = {
-                    "lower_bound": row[1],
-                    "upper_bound": row[2]
-                }
-            elif row[0] == 'Pool':
-                if not isinstance(row[1], int) or row[1] < 0:
-                    flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
-                    return redirect(url_for('admin_home'))
-                to_dump['Pool'] = {
-                    "sample": [],
-                    "show": row[1]
-                }
-                for j, column in enumerate(row):
-                    if j > 1:
-                        if not isinstance(column, int) or column < 0:
-                            flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
-                            return redirect(url_for('admin_home'))
-                        to_dump['Pool']['sample'].append(column)
             else:
                 flash('Invalid data in ' + file_name + ' at row ' + str(i + 1))
                 return redirect(url_for('admin_home'))
@@ -603,5 +609,5 @@ def process_add_detail_file():
             outfile.write('')
             json.dump(dumping, outfile)
         shutil.move(os.getcwd() + '/' + dest, os.getcwd() + '/app/distributions/' + dest)
-        flash('The detail ' + file_name + ' has been successfully created')
+        flash('The detail ' + dest + ' has been successfully created')
         return redirect(url_for('admin_home'))
